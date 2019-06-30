@@ -160,4 +160,83 @@
 
 ---
 ## **6. 입력 위젯과 이벤트 처리**
-- 
+- 입력 위젯
+	- 위젯 - 그래픽 사용자 인터페이스를 이루는 부품??
+
+- 버튼
+	- 텍스트 버튼
+		- Button 클래스를 이용
+
+		`android:text="@string/button_text"`
+
+	- 이미지 버튼
+		- ImageButton 클래스를 이용
+		
+		`android:src="@drawable/button_icon"` <- 이미지 파일 이름
+
+	- 텍스트와 이미지를 동시에 가지는 버튼
+		
+		`android:text="@string/button_text"`
+		`android:drawableLeft="@drawable/button_icon"`
+
+	- 버튼의 이벤트 처리
+		- 클릭 이벤트가 발생하면 레이아웃에 등록된 메소드가 자동으로 호출된다.
+		- onClick 속성을 추가
+
+		`android:onClick="onClick"`	<- 이벤트를 처리하는 메소드 이름
+		
+		`public void onClick(View view){ ··· }` <- XML 파일에 적었던 메소드를 구현
+
+	- 예제 : 이미지 버튼 만들기
+	```
+
+	```
+
+	- 예제 : 커스텀 버튼
+	```
+
+	```
+	
+- 이벤트를 처리하는 방법
+	- XML 파일에 이벤트 처리 메소드를 등록하는 방법
+		- 클릭 이벤트만을 처리할 수 있는 방법
+		- 버튼과 같은 위젯의 경우, 가장 간단하게 이벤트를 처리할 수 있다.
+	- 이벤트를 처리하는 객체를 생성하여 이벤트를 처리하는 방법
+		- 이벤트를 처리하는 객체를 별도로 생성하여 위젯에 등록
+		- 이벤트를 처리하는 가장 일반적인 방법
+	- 뷰 클래스의 이벤트 처리 메소드를 재정의하는 방법
+		- 커스텀 뷰를 작성하는 경우에만 사용할 수 있는 방법
+
+- 이벤트 처리 객체를 이용하여 이벤트 처리하기
+	- 이벤트를 처리하는 메소드들이 정의된 인터페이스를 **이벤트 리스너**라고 부른다.
+	```
+	class MyClass{
+		// 리스너 인터페이스를 구현한 클래스 정의
+		class Listener implements OnClickListener{
+			public void onClick(View v){
+				...
+			}
+		}
+
+		Listener lis = new Listener();	// 이벤트 리스너 객체 생성
+		button.setOnClickListener(lis);	// 버튼에 이벤트 리스너 객체를 등록
+	}
+	```
+	- 무명 클래스를 사용하여서 이벤트를 처리하는 방법
+	```
+	Button button = (Button) findViewById(R.id.button_send);
+	button.setOnClickListener(new View.OnClickListener() {
+		public void onClick(View v) {
+			// 버튼이 클릭되면 여기서 어떤 작업을 한다.
+		}
+	});
+	```
+
+	- 리스너 객체를 생성하는 방법
+		- 리스너 클래스를 **내부 클래스**로 정의한다.
+		- 리스너 클래스를 **무명 클래스**로 정의한다.
+		- 리스너 인터페이스를 **액티비티 클래스**에 구현한다.
+
+	- 내부 클래스로 처리하는 방법
+		- 내부 클래스는 자신이 속해있는 클래스의 멤버들에 자유롭게 접근하여 사용할 수 있다는 큰 장점이 있다.
+		
