@@ -313,5 +313,69 @@
 	- 메뉴 구조를 쉽게 시각화할 수 있다.
 	- 코드와 메뉴가 분리되어서 차후에 쉽게 변경할 수 있다.
 	- 플랫폼 버전이나 화면 크기에 따라서 서로 다른 메뉴 구성을 가질 수 있다.
+	```
 
-	
+	```
+
+- 옵션 메뉴 생성하기
+	- 옵션 메뉴는 현재 액티비티와 관련된 여러 가지 동작이나 선택사항을 설정하는 메뉴이다.
+	```
+	@Override
+	// 액티비티의 메소드 onCreateOptionMenu()를 재정의한다.
+	public boolean onCreateOptionMenu(Menu menu){
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mymenu, menu);		// 메뉴 리소스 팽창
+		return true;
+	}
+	```
+	- 메뉴 팽창(inflate)
+		- 메뉴 리소스를 팽창하면 실제 메뉴가 생성된다.
+		- 팽창한다는 의미는 프로그래밍 객체로 변환한다는 뜻이다.
+
+	- 클릭 이벤트 처리
+	```
+
+	```
+
+	- 코드로 옵션 메뉴 생성하기
+
+- 컨텍스트 메뉴
+	- 플로팅 컨텍스트 메뉴 : 항목 위에 오래누르기를 하면 메뉴가 표시됨
+	- 컨텍스트 액션 메뉴 : 선택된 항목에 관련된 메뉴가 액션바에 표시됨
+
+- 팝업 메뉴
+	- 특정한 뷰에 붙어있는 메뉴
+
+- 대화 상자
+	- 사용자에게 메시지를 출력하고 사용자로부터 입력을 받아들이는 사용자 인터페이스
+	- AlertDialog
+
+- DatePickerDialog
+
+
+- 커스텀 대화 상자
+
+- 알림기능
+	- 알림을 만드는 절차
+		1. 알림 빌더를 생성한다.
+		```
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+		```
+		2. 알림 속성을 설정한다.
+		```
+		builder.setSmallIcon(R.drawable.notification_icon);
+		builder.setContentTitle("알려드립니다.");
+		builder.setContentText("이것은 시험적인 알림입니다.");
+		```
+		3. 액션을 첨부한다.
+		```
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com/"));
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		builder.setContentIntent(pendingIntent);
+		```
+		4. 알림 생성
+		```
+		NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		notificationManager.notify(NOTIFICATION_ID, builder.build());
+		```
+
