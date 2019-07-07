@@ -379,3 +379,68 @@
 		notificationManager.notify(NOTIFICATION_ID, builder.build());
 		```
 
+
+---
+## **6. 그래픽**
+- 그래픽
+	- 2차원 그래픽을 사용하는 방법
+		1. 캔버스에 코드로 직접 그린다. onDraw() 메소드 안에 draw...()와 같은 메소드 호출
+			- UI 액티비티와 같은 스레드 안에서 커스텀 뷰를 생성하고 invalidate()를 호출하여 화면을 그린다. invalidate()는 onDraw()를 호출한다.
+			- 별도의 화면과 스레드를 생성하여서, UI 스레드와는 독립적으로 그래픽을 그린다.
+		2. 레이아웃 파일 안에서 그래픽이나 애니메이션을 정의
+
+- 커스텀 뷰를 사용하여 그리기
+	```
+	class MyView extends View {
+		...
+		protected void onDraw(Canvas canvas) {
+			Paint paint = new Paint();
+			// 여기에 그림을 그리는 코드 작성
+		}
+	}
+
+	public class MainActivity extends AppCompatActivity {
+		public void onCreate(Bundle is) {
+			...
+			MyView w = new MyView(this);
+			setContentView(w);
+			// MyView를 생성하고 이것을 Activity의 컨텐트 뷰로 설정
+		}
+	}
+	```
+
+	- Canvas 클래스
+		- 그림을 그리는 캔버스에 해당되는 것으로 Bitmap 객체를 가지고 있다.
+		- onDraw()에서는 캔버스가 주어지지만 우리가 새로운 캔버스를 생성할 수도 있는데 이 때는 비트맵도 함께 생성하여야 한다.
+		```
+		Bitmap b = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+		Canvas c = new Canvas(b);
+		```
+
+	* 그림이 그려지는 화포가 Canvas, 붓이나 물감이 Paint
+
+	- Paint 클래스
+		- Canvas의 메소드는 항상 Paint 객체를 마지막 매개변수로 하여 호출되어야 한다.
+
+	- 커스텀 뷰를 XML 파일에서 참조하는 방법
+	```
+	
+	```
+
+- 그리기 속성
+	- 색상
+		- 색상은 색의 3원색인 Red, Green, Blue 성분을 8비트로 표시하여 나타낸다.
+		- 따라서 24비트이면 하나의 색상을 표현할 수 있고, 24비트를 16진수로 표시하는 것이 일반적
+
+		`paint.setColor(0xFF0000); // Red`
+
+		`paint.setColor(Color.RED);`
+
+	- 앤티 에일리어싱 : 도형의 경계부분을 더 매끄럽게 그려지도록 하는 기술
+
+	- 폰트 변경
+	```
+
+	```
+
+	
