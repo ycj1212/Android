@@ -439,8 +439,38 @@
 	- 앤티 에일리어싱 : 도형의 경계부분을 더 매끄럽게 그려지도록 하는 기술
 
 	- 폰트 변경
+		- Typeface 클래스의 객체로 표현
+		- 폰트 생성 Typeface.create()
+		- 폰트 변경 setTypeface()
+		- 설정된 폰트를 이용하여 화면에 그리려면 Paint 클래스의 drawText()
 	```
 
 	```
 
+- 패스 그리기
+	- 패스는 복잡한 기하학적인 경로를 표시한다.
+
+- 이미지 표시하기
+	- ImageView를 사용하는 방법
+	
+	- 이미지를 직접 그려주는 방법
+	```
+	Bitmap b = BitmapFactory.decodeResource(getResource(), R.drawable.android);
+	( 이미지 데이터를 포함하는 애플리케이션 리소스 객체, 이미지의 리소스 식별자 )
+	```
+	- decodeResource()는 첫 번째 인수인 리소스 객체에서 두 번째 인수인 식별자에 해당하는 리소스를 찾고 디코딩하여 비트맵으로 변환한다.
+
+	
+	```
+	void drawBitmap(Bitmap bitmap, float left, float top, Paint paint);
+	(화면에 그릴 비트맵, 이미지가 그려지는 위치, 변환 행렬이 들어 있는 Paint 객체)
+	* 여기서 이미지를 변환할 필요가 없다면 paint는 null로 주어도 된다.
+	```
+
+	- 비트맵의 확대 및 축소
+	```
+	Bitmap b = BitmapFactory.decodeResource(getResource(), R.drawable.android);
+	Bitmap sb = Bitmap.createScaledBitmap(b, 60, 80, false);
+	60*80 크기의 새로운 비트맵 생성
+	```
 	
