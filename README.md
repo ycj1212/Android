@@ -474,3 +474,66 @@
 	60*80 크기의 새로운 비트맵 생성
 	```
 	
+	- 비트맵의 변환
+		- 상하가 뒤집힌 비트맵 생성
+		```
+		Matrix m = new Matrix();	// 변환 행렬을 생성
+		m.preScale(1, -1);	// x값에 1을 곱하고 y값에 -1을 곱하는 변환행렬을 만든다.		
+		Bitmap b = BitmapFactory.decodeResource(getResource(), R.drawable.android);
+		Bitmap mb = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), m, false);
+		// 변환 행렬 m이 적용된 새로운 비트맵을 생성한다.
+		```
+
+- 도형 객체 이용하기
+	- android.graphics.drawable 패키지에는 2차원 도형을 정의하는 클래스들이 포함되어 있다.
+	- 버튼의 이미지를 제작하거나 배경 이미지를 만들 때 사용하면 편리하다.
+
+	- XML로 도형 정의하기
+	```
+	<?xml version="1.0" encoding="utf-8"?>
+	<shape
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:shape=["rectangle" | "oval" | "line" | "ring"] >
+		
+		...
+
+	</shape>
+	```
+
+- Transition API 애니메이션
+	- 버튼과 텍스트에 간단한 애니메이션 효과를 주는 용도로 많이 사용
+
+
+- 드로워블 애니메이션
+	- 영화 필름처럼 여러 개의 이미지가 순서대로 재생되어서 생성되는 전통적인 애니메이션이다.
+	- AnimationDrawable 클래스가 프레임 애니메이션의 기초 클래스
+
+- 서피스 뷰
+	- 그리기 전용의 화면을 제공하는 뷰
+	```
+	class MyView extends SurfaceView implements SurfaceHolder.Callback{
+		public void surfaceCreated(SurfaceHolder holder){
+			// 서피스가 준비되었으므로 스레드를 시작한다.
+		}
+
+		public void surfaceDestroyed(SurfaceHolder holder){
+			// 서피스가 소멸되었으므로 스레드를 종류한다.
+		}
+
+		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height){
+			// 서피스가 변경
+		}
+	}
+
+	class MyThread extends Thread {
+		SurfaceHolder holder;
+		...
+		public void run(){
+			canvas = holder.lockCanvas();
+			// 캔버스에 그림을 그린다.
+			...
+			...
+			holder.unlockCanvasAndPost(canvas);
+		}
+	}
+	```
