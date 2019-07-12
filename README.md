@@ -1,4 +1,4 @@
-# Android
+# **Android**
 
 
 ---
@@ -537,3 +537,31 @@
 		}
 	}
 	```
+
+---
+## **7. 고급 위젯과 프래그먼트**
+
+1. 어댑터 뷰(AdapterView) 클래스
+	- 화면에서 동적으로 변경되는 콘텐츠를 채울 때 사용
+	- 배열, 파일, 데이터베이스에서 저장된 데이터를 읽어서 화면에 표시할 때 유용한 뷰
+		- 리스트 뷰(ListView)
+		- 갤러리(Gallery)
+		- 그리드 뷰(GridView)
+
+	- 어댑터 뷰에 데이터를 공급하는 클래스가 **어댑터(Adapter)** 이다.
+	- 어댑터는 데이터 소스와 어댑터 뷰 중간에 위치하여서 데이터 소스에서 데이터를 읽어서 어댑터 뷰에 공급한다.
+		- ArrayAdapter : 배열에서 데이터를 가져옴
+		- SimpleCursorAdapter : 데이터베이스에서 데이터를 가져옴
+	
+		`데이터 -> Adapter -> AdapterView`
+	
+2. 리스트 뷰(ListView)
+	- 리스트 뷰는 항목들을 수직으로 보여주는 어댑터 뷰로 상하로 스크롤이 가능
+	- 스마트폰에서 사용하기 쉽기 때문에 아주 많이 사용
+	- ListActivity 클래스 사용
+
+	`ArrayAdapter(Context context, int textViewResourceId, T[] object)`
+
+	`현재 애플리케이션 컨텍스트, 레이아웃 아이디, 배열`
+
+	
