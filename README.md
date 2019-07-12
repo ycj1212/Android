@@ -564,4 +564,33 @@
 
 	`현재 애플리케이션 컨텍스트, 레이아웃 아이디, 배열`
 
+	- 두 번째 매개변수인 레이아웃 아이디는 사용자가 직접 지정할 수도 있지만, 통상적으로 안드로이드가 제공하는 표준적인 레이아웃을 사용할 수도 있다.
 	
+	```
+	R.layout 클래스 파일 안에 정의되어있다.
+	- simple_list_item_1			:	한 개의 텍스트 뷰 사용
+	- simple_list_item_2			:	두 개의 텍스트 뷰 사용
+	- simple_list_item_checked		:	항목당 체크 표시
+	- simple_list_item_single_choice	:	한 개의 항목만 선택
+	- simple_list_item_mutiple_choice	:	여러 개의 항목 선택 가능
+	```
+	
+	- ListActivity 클래스는 ListView를 화면으로 사용하는 액티비티이다.
+	- setListAdapter()를 호출하여서 리스트뷰와 어댑터를 연결
+	- onListItemClick()은 리스트의 항목이 클릭되면 호출
+	
+	```
+	ArrayAdaptor 클래스는 제네릭 클래스로 정의되어 있다.
+	제네릭 클래스란 타입 매개변수를 사용하여서 클래스 안에서 사용되는 데이터 타입을 마음대로 변경할 수 있는 클래스이다.
+	제네릭 클래스에서 타입 매개변수는 객체 생성 시에 프로그래머에 의해 결정된다.
+	<...> 를 사용하여서 사용하고 싶은 타입을 지정하면 된다.
+	
+	new ArrayAdapter<String>(...)
+
+	ArrayAdapter 클래스
+	T 타입 참조 변수
+	T = Integer		->	Integer 객체 '10'
+	T = String		->	String 객체 "Hello World!"
+	```
+
+3. 그리드 뷰(GridView)
