@@ -683,12 +683,83 @@
 		- 다른 애플리케이션의 컴포넌트를 구동하는데 사용된다.
 	
 3. 명시적 인텐트
-
+	```
+	현재의 액티비티에서 다른 액티비티로 넘어갈 수 있다.
+	Intent intent = new Intent(this, NextActivity.class);
+	startActivity(intent);
+	```
 4. 여러 페이지로 구성된 애플리케이션 작성
+	```
 
+	```
 5. 액티비티로부터 결과받기
+	- 서브 액티비티로부터 결과를 받아야 하는 경우 startActivity()가 아닌 startActivityForResult()를 호출하여서 서브 액티비티를 시작하여야 한다.
+	- 서브 액티비티가 결과를 보내면 메인 액티비티의 onActivityResult() 콜백 메소드가 호출됨.
+	```
+	...
+	public class MainActivity extends AppCompatActivity {
+		...
+		// 서브 액티비티를 시작한다.
+		Intent in = new Intent(MainActivity.this, SubActivity.class);
+		startActivityForResult(in, COMMAND);
 
+		@Override
+		protected void onActivityResult(int requestCode, int resultCode, Intent data){
+			...	/// 여기서 값을 전달받는다.
+		}
+	}
+	```
 6. 암시적 인텐트
+	- 만약 어떤 작업을 하기를 원하지만 그 작업을 담당하는 컴포넌트의 이름을 명확하게 모르는 경우에 사용
+	- 암시적 인텐트에는 자신이 원하는 작업만을 기술한다.
+	- 매니페스트 파일의 인텐트 필터와 암시적 인텐틀르 비교하여서 가장 일치하는 컴포넌트를 찾는다.
+	```
+	Intent intent = new Intent(Intent.ACTION_SEND);		 // 이메일 전송을 의미하는 인텐트 생성
+	intent.putExtra(Intent.EXTRA_EMAIL, recipientArray); // 이메일의 송신자를 엑스트라 필드에 기술한다.
+	startActivity(intent);
+	```
+
+	- 인텐트 객체
+		- 상당한 정보의 묶음이다.
+		- 컴포넌트 이름 - 인텐트를 처리하는 타깃 컴포넌트의 이름이다.
+			타깃 컴포넌트의 완전한 이름과 패키지 이름을 적어주면 된다.
+			만약 컴포넌트의 이름이 없으면 암시적 인텐트가 되어서 안드로이드가 최적의 타깃 컴포넌트를 찾아준다.
+			setComponent(), setClass(), setClassName()으로 설정, getComponent()로 읽을 수 있다.
+	
+		- 액션 - 수행되어야 하는 작업
+		```
+		ACTION_VIEW	- 데이터를 사용자에게 표시
+		ACTION_EDIT - 사용자가 편집할 수 있는 데이터를 표시
+		ACTION_MAIN - 태스크의 초기 액티비티로 설정
+		ACTION_CALL - 전화 통화 시작
+		ACTION_SYNC - 모바일 장치의 데이터를 서버 상의 데이터와 일치시킨다.
+		ACTION_DIAL - 전화번호를 누르는 화면 표시
+		```
+		
+		- 데이터 - 작업에 필요한 데이터
+			ACTION_VIEW이면 무엇을 사용자에게 표시할 것인지를 주어야 한다.
+			데이터는 URI 형식을 사용한다.
+			setData()와 getData()를 사용하여서 인텐트 객체에 데이터를 설정하고 접근할 수 있다.
+			```
+			ex)
+			ACTION_VIEW		content://contacts/people/1	- 1번 연락처 정보를 표시
+			ACTION_DIAL		content://contacts/people/1 - 1번 연락처로 전화걸기 화면을 표시
+			ACTION_DIAL		tel:0101234567 - 0101234567번 전화번호로 전화걸기 화면을 표시
+			ACTION_EDIT		content://contacts/people/1	- 1번 연락처 정보를 편집
+			ACTION_VIEW		content://contacts/people/	- 연락처 리스트를 표시
+			```
+
+			```
+			...
+			Intent intent = new Intent(Intent.ACTION_CALL);	// 액션이 ACTION_CALL인 인텐트 생성
+			intent.setData(Uri.parse("tel:01012341234"));	// 01012341234번 전화번호를 데이터로 설정
+			startActivity(intent);	// 인텐트 시작
+			...
+			```
+	
+		- 카테고리
+		
+		- 엑스트라
 
 7. 멀티태스킹
 
