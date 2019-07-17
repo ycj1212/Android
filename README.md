@@ -836,15 +836,167 @@
 			- 시스템은 액티비티가 시작된 태스크에 액티비티 인스턴스를 생성하고 인텐트를 전달한다.
 			  액티비티는 여러 번 인스턴스화될 수 있으며 각 인스턴스는 서로 다른 태스크에 속할 수 있다.
 			  하나의 태스크는 여러 개의 인스턴스를 가질 수 있다.
-		- singleTop
-			- 액티비티의 인스턴스가 스택의 맨 위에 있다면 새로운 인스턴스를 생성하지 않고 인텐트를 기존의 인스턴스에 전달한다. 
 
+		- singleTop
+			- 액티비티의 인스턴스가 스택의 맨 위에 있다면 새로운 인스턴스를 생성하지 않고 인텐트를 기존의 인스턴스에 전달한다.
+			- 이 때, onNewIntent() 메소드가 호출된다.
+			- 하나의 태스크는 여러 개의 인스턴스를 가질 수 있지만, 스택의 맨 위에는 동일한 액티비티의 인스턴스가 있는 경우에는 예외이다.
+
+			```
+			* Standard
+
+			|          |                      |          |                      | 액티비티B |
+			|          |                      | 액티비티B |                      | 액티비티B |
+			| 액티비티A | -> 액티비티 B 시작 -> | 액티비티A | -> 액티비티 B 시작 -> | 액티비티A |
+			
+			* SingleTop
+
+			|          |                      |          |                      |          |
+			|          |                      | 액티비티B |                      | 액티비티B |
+			| 액티비티A | -> 액티비티 B 시작 -> | 액티비티A | -> 액티비티 B 시작 -> | 액티비티A |
+			```
+		
+		- singleTask
+			- 액티비티가 생성될 때, 새로운 태스크가 생성되고 액티비티는 새로운 태스크의 루트가 된다.
+			- 그러나 액티비티가 이미 별도의 태스크로 수행되고 있다면, 새로운 액티비티는 생성되지 않고 기존의 액티비티로 onNewIntent()를 통하여 인텐트가 전달된다.
+			- 액티비티는 하나만 존재할 수 있다.
+
+			```
+			* SingleTask
+
+			|          |                      |          |  |          |
+			| 액티비티B |                      | 액티비티B |  |          |
+			| 액티비티A | -> 액티비티 C 시작 -> | 액티비티A |  | 액티비티C |
+			```
+		- singleInstance
+			- "singleTask" 와 동일하지만 태스크에 다른 액티비티들을 구동하지 않는다.
+			- 액티비티는 하나만 존재할 수 있으며 이것이 태스크의 유일한 멤버가 된다.
+			- 이 액티비티가 시작하는 다른 액티비티들은 모두 별도의 태스크에서 시작된다.
 
 	- 인텐트 플래그 사용하기
+		- startActivity()를 사용하여 액티비티를 시작할 때, 인텐트의 플래그를 사용하여서 액티비티와 태스크의 관계를 변경할 수 있다.
+
+		- FLAG_ACTIVITY_NEW_TASK
+			- 액티비티를 새로운 태스크 안에서 시작한다.
+			- 만약 우리가 시작하려고 하는 액티비티를 다른 태스크가 이미 실행하고 있다면 그 태스크가 전경으로 이동한다.
+			- onNewIntent()가 새로운 인텐트를 받는다.
+			- "singleTask" 구동모드와 동일하게 동작
+
+		- FLAG_ACTIVITY_SINGLE_TOP
+			- 시작된 액티비티가 이미 스택의 맨 위에 있다면, 새로운 액티비티가 생성되지 않고, 기존의 액티비티가 onNewIntent()를 통하여 인텐트를 전달받는다.
+			- "singleTop" 구동모드와 동일하게 동작
+
+		- FLAG_ACTIVITY_CLEAR_TOP
+			- 시작된 액티비티가 이미 현재 태스크에서 실행되고 있으며, 새로운 액티비티가 만들어지는 것이 아니라 기존의 액티비티가 다시 실행되며, 스택에서 기존의 액티비티 위에 있던 액티비티들은 모두 파괴된다.
+			- onNewIntent()를 통하여 인텐트를 전달받는다.
+			- FLAG_ACTIVITY_CLEAR_TOP은 흔히 FLAG_ACTIVITY_NEW_TASK와 같이 사용된다.
+
+			```
+			| 액티비티D |                      |          |
+			| 액티비티C |  -> 액티비티B 시작 -> |          |
+			| 액티비티B |                      | 액티비티B |
+			| 액티비티A |                      | 액티비티A |
+			```
+
 9. 인텐트 필터
+	- 컴포넌트가 처리할 수 있는 인텐트를 적어놓은 것이다.
+	- 암시적 인텐트에 국한된다.
+	- 명시적 인텐트는 무엇을 포함하고 있는지 상관없이 항상 타깃 컴포넌트로 전달된다.
+	- 암시적 인텐트는 필터를 통과해야만 컴포넌트로 전달된다.
+
+	- 인텐트와 인텐트 필터 비교
+		1. 액션 비교
+			```
+			<intent-filter ...>
+				<action android:name="com.example.project.SHOW_CURRENT" />
+				<action android:name="com.example.project.SHOW_RECENT" />
+				<action android:name="com.example.project.SHOW_PENDING" />
+				...
+			</intent-filter>
+			```
+
+			- 인텐트의 액션은 필터에 나열된 액선 중의 하나와 반드시 일치하여야 한다.
+			- 만약 필터가 어떤 액션도 나열하지 않았다면 어떤 인텐트도 필터를 통과할 수 없다.
+			- 만약 인텐트 객체가 어떤 액션도 지정하지 않았다면 자동적으로 필터를 통과한다.
+
+		2. 카테고리 비교
+			```
+			<intent-filter ...>
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				...
+			</intent-filter>
+			```
+
+			- 인텐트 객체 안의 모든 카테고리가 필터의 카테고리와 일치되어야 한다.
+			- 카테고리를 가지지 않은 인텐트 객체는 항상 카테고리 테스트를 통과한다.
+
+		3. 데이터 비교
+			```
+			<intent-filter>
+				<data
+					android:mimeType="video/*"
+					android:scheme="http" />
+				...
+			</intent-filter>
+			```
+
+			- 데이터 타입이나 URI를 지정하지 않은 인텐트는 필터가 아무런 URI나 데이터 타입을 지정하지 않은 경우에만 테스트를 통과한다.
+			- 데이터 타입이나 URI 중에서 하나만 지정한 인텐트는 필터도 똑같이 하나만 지정한 경우에 테스트를 통과한다.
+			- 데이터 타입과 URI를 모두 지정한 인텐트는 데이터 타입과 URI가 모두 필터와 일치하여야 한다.
+
+			- 노트패드 예제
+			```
+			AndroidManifest.xml
+			<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+						package="com.example.android.notepad" >
+				<application android:icon="@drawable/app_notes"
+								android:label="@string/app_name" >
+				...
+					<activity android:name="NotesList" android:label="@string/title_notes_list" >
+						<!-- 이 필터는 이 액티비티가 노트 패드 애플리케이션의 진입임을 표시한다. 즉, 액션이 MAIN이면 진입점을 표시하고 LAUNCHER 카테고리는 이 액티비티가 애플리케이션 런처에 나열되어야 함을 의미한다. -->
+						<intent-filter>
+							<action android:name="android.intent.action.MAIN" />
+							<category android:name="android.intent.category.LAUNCHER" />
+						</intent-filter>
+						<!-- 이 필터는 액티비티가 노트들의 디렉터리에 대하여 할 수 있는 것들을 선언한다. 사용자로 하여금 디렉터리를 보거나(VIEW) 편집(EDIT)할 수 있도록 허용하고 또 디렉터리에서 특정한 노트를 선택(PICK)할 수 있도록 한다.
+						<data>에서 mimeType은 이들 액션이 적용되는 데이터의 종류를 지정한다. 만약 이런 종류의 데이터 타입을 지정하는 인텐트 객체가 전달되면 이 액티비티가 구동될 것이다.
+						DEFAULT 카테고리가 포함된 이유는 startActivity() 메소드가 모든 인텐트가 DEFAULT 카테고리를 포함하고 있다고 가정하기 때문이다. 따라서 DEFAULT 카테고리는 모든 필터에서 반드시 필요하다. -->
+						<intent-filter>
+							<action android:name="android.intent.action.VIEW" />
+							<action android:name="android.intent.action.EDIT" />
+							<action android:name="android.intent.action.PICK" />
+							<category android:name="android.intent.category.DEFAULT" />
+							<data android:mimeType="vnd.android.cursor.dir/vnd.google.note" />
+						</intent-filter>
+						<!-- 이 필터는 사용자가 선택한 노트를 반환하기 위하여 필요하다. GET_CONTENT 액션은 PICK 액션과 유사하다. 이들은 모두 사용자가 선택한 노트의 Uri를 반환한다. 실제로 이들은 startActivityForResult()를 호출한 액티비티로 반환된다. -->
+						<intent-filter>
+							<action android:name="android.intent.action.GET_CONTENT" />
+							<category android:name="android.intent.category.DEFAULT" />
+							<data android:mimeType="vnd.android.cursor.item/vnd.google.note" />
+						</intent-filter>
+					</activity>
+
+					<activity android:name="NoteEditor">
+								android:theme="@android:style/Theme.Light"
+								android:label="@string/title_note" >
+					...
+					</activity>
+
+					<activity android:name="TitleEditor" 
+								android:label="@string/title_edit_title"
+								android:theme="@android:style/Theme.Dialog" >
+						...
+					</activity>
+				</application>
+			</manifest>
+			```
 
 10. 액티비티 생애주기
-
+	- 실행 상태
+	- 일시멈춤 상태
+	- 정지 상태
+	
 11. 액티비티 상태 저장
 
 
