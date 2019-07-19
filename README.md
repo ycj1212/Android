@@ -1003,12 +1003,14 @@
 	아직까지는 상태와 멤버 정보를 가지고 있다.
 	하지만 시스템이 메모리가 필요하면 언제든지 종료시킬 수 있다.
 	
-	![Image](https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&ved=2ahUKEwjJtpCmr8DjAhWMvZQKHYV-BqoQjRx6BAgBEAU&url=http%3A%2F%2Fwawoops67.blogspot.com%2F2018%2F10%2Fandroid-lifecycle.html&psig=AOvVaw2SPpC9WpaFE7llrOpWH-wC&ust=1563604630122077)
+	![Image](C:\Users\단비\Desktop\CheolJoo\vscode\Android\lifecycle.png)
 
 	- 액티비티 객체 생성 단계
 		안드로이드 시스템은 액티비티의 onCreate()를 호출하여서 액티비티 객체를 생성한다.
 		따라서 onCreate()에는 딱 한번 실행되는 초기화 코드가 포함되어야 한다.
 		전형적으로 사용자 인터페이스 정의와 클래스 수준의 변수들이 생성되고 초기화된다.
+		onCreate()가 실행을 완료하면 바로 이어서 onStart()와 onResume()이 호출된다.
+		onResume()이 호출된 후에는 애플리케이션은 실행 상태에 머무르며, 전화가 오거나 사용자가 다른 액티비티로 이동하기 전까지 그 상태를 유지한다.
 
 	
 11. 액티비티 상태 저장
