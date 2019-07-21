@@ -1156,3 +1156,104 @@
 	R클래스 안에는 res 디렉터리에 저장된 리소스에 대한 리소스 아이디가 정의되어 있다.
 	자세히 살펴보면 각각의 리소스 타입에 대하여 별도의 내부클래스가 정의되어 있는 것을 알 수 있다.
 	예를 들어서, 모든 drawable 리소스에 대해서는 R.drawable클래스가 정의된다.
+	내부 클래스 안에는 정적 상수들이 정의되어 있고 중복되지 않는 값으로 초기화되어 있다.
+	예를 들어서 R.drawable.icon이라는 정적 상수가 정의되어 있다.
+	이 정적 상수가 바로 리소스를 참조할 때 사용하는 리소스 아이디이다.
+	리소스 아이디는 리소스 타입과 리소스 이름을 합쳐서 만든다.
+	리소스 타입은 string, layout, drawable과 같이 리소스의 종류를 나타낸다.
+	리소스 이름은 일반적으로 확장자를 제외한 파일 이름이다.
+	
+	- 코드에서 리소스 참조
+	코드에서 리소스를 참조하려면 R 클래스 안에 정의된 정적 상수를 사용한다.
+	예를 들어서 다음과 같다.
+
+	`R.string.hello`
+
+	여기서 string은 리소스 타입이고 hello는 리소스 이름이다.
+	예를 들어서 /res/drawable 폴더에 있는 image.png를 이미지 뷰에 나타내려면 다음과 같은 문장을 사용한다.
+	
+	```
+	imageView.setImageResource(R.drawable.image);
+	setContentView(R.layout.activity_main);
+	```
+
+	- XML에서 리소스를 참조하는 방법
+	XML에서는 리소스를 참조하려면 다음과 같은 문법을 사용한다.
+	
+	`@string/hello`
+
+	여기서도 string은 리소스 타입, hello는 리소스 이름을 나타낸다.
+	예를 들어서 버튼의 텍스트를 문자열 리소스로 설정하면 다음과 같다.
+
+	```
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/submit" /> ☜ 문자열 타입의 리소스 submit 
+	```
+
+	버튼의 텍스트를 정의할 때 실제 문자열을 사용하는 것보다 문자열 리소스를 사용하는 것이 바람직하다.
+	이번에는 별도의 XML파일에서 색상 리소스와 문자열 리소스를 다음과 같이 정의하였다고 가정하자.
+
+	```
+	<?xml  version="1.0" encoding="utf-8"?>
+	<resources>
+		<color name="opaque_red">#f00</color> ☜ 이름이 opaque_red인 색상 리소스
+		<string name="hello">Hello!</string> ☜ 이름이 hello인 문자열 리소스
+	</resources>
+	```
+
+	이들 리소스들은 다음과 같은 레이아웃 파일에서 텍스트 컬러와 텍스트 문자열을 설정하기 위하여 사용될 수 있다.
+
+	```
+	<?xml  version="1.0" encoding="utf-8"?>
+	<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:text="@string/hello"
+		android:textColor="@color/opaque_red" />
+	```
+
+	```
+	만약 리소스가 정의된 패키지가 다르면 다음과 같이 리소스 아이디 앞에 패키지를 적어준다.
+	- 코드에서는 다음과 같은 형식을 사용한다.
+	[<package_name>.]R.<resource_type>.<resource_name>
+	- XML에서는 다음과 같은 형식을 사용한다.
+	@<package_name>:]<resource_type>/<resource_name>
+	```
+
+	- 스타일 속성을 참조하는 방법
+	스타일 속성 리소스는 현재 설정된 테마의 리소스를 사용하는 것이다.
+	스타일 속성을 사용하면 사용자 인터페이스 요소들의 외관을 일관성 있게 변경할 수 있다.
+	스타일 속성을 사용하는 것은 **"현재 테마에서 이 속성에 의하여 정의된 스타일을 사용하라"**고 말하는 것과 같다.
+	스타일 속성을 참조하려면 다음과 같은 형식을 사용한다.
+
+	`?[<package_name>:][<resource_type>/]<resource_name>`
+
+	스타일 속성 리소스는 @대신에 ?를 붙이면 된다.
+	예를 들어서 텍스트 색상을 시스템 테마의 기본 색상으로 변경하려면 다음과 같이 적어준다.
+
+	```
+	<EditText id="text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textColor="?android:textColorSecondary" ☜ 스타일 속성
+		android:text="@string/hello_world" />
+	```
+
+	여기서는 android:textColor 값으로 안드로이드 시스템 테마의 android:textColorSecondary 속성이 제공하는 값을 사용한다.
+
+	- 플랫폼 제공 리소스 사용
+	안드로이드는 스타일이나 테마, 레이아웃 같은 몇 개의 표준 리소스들을 가지고 있다.
+	이들 리소스를 사용하려면 리소스 참조자 앞에 패키지 이름 android를 붙여서 지정하면 된다.
+	예를 들어서, 안드로이드는 ListAdapter의 항목을 위해서 표준 레이아웃 리소스를 제공한다.
+
+	```
+	setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, myarray));
+	```
+
+	이 예제에서는 simple_list_item_1이 레이아웃 리소스로 플랫폼에 의하여 정의된다.
+	리스트 항목에 대하여 스스로 레이아웃을 작성하여도 되지만 간단히 이 표준 리소스를 사용하여도 된다.
+
+4. 다양한 화면 지원하기
+	안드로이드에서는 
