@@ -1256,4 +1256,133 @@
 	리스트 항목에 대하여 스스로 레이아웃을 작성하여도 되지만 간단히 이 표준 리소스를 사용하여도 된다.
 
 4. 다양한 화면 지원하기
-	안드로이드에서는 
+	안드로이드에서는 화면의 크기와 해상도를 이용하여서 장치 화면을 구분한다.
+	개발자들은 자신의 앱이 다양한 크기와 해상도를 가지는 장치에 아무런 문제없이 설치되기를 바랄 것이다.
+	그러려면 다양한 크기와 해상도를 가지는 화면을 위하여 적절한 자원을 포함시켜야 한다.
+
+	- 화면의 크기에 따른 분류 : small, normal, large, xlarge
+	- 화면의 해상도에 따른 분류 : low(ldpi), medium(mdpi), high(hdpi), extra high(xhdpi)
+
+	화면에 적절한 레이아웃과 비트맵을 선언하려면 독립적인 디렉터리에 대체 리소스를 저장하여야 한다.
+	또, 화면 방향(수평이나 수직)도 화면 크기의 일종으로 취급된다.
+	따라서 많은 앱이 수평 방향의 레이아웃을 다르게 제공하고 있다.
+
+	- 다양한 레이아웃 생성
+	다양한 화면 크기에서의 사용자 경험을 최적화하려면, 각 화면 크기마다 별도의 레이아웃 파일을 생성하여야 한다.
+	각 레이아웃 파일은 적절한 디렉터리에 저장된다.
+	-<screen_size> 접미사가 디렉터리 이름에 붙는다.
+	예를 들어서 "xlarge" 화면을 위한 레이아웃은 res/layout-large/ 디렉터리 아래에 저장되어야 한다.
+	예를 들어서 기본 레이아웃과 "xlarge" 카테고리 화면을 위한 레이아웃은 다음과 같이 구성될 수 있다.
+
+	```
+	MyProject/
+		res/
+			layout/
+				activity_main.xml
+			layout-xlarge/
+				activity_main.xml
+	```
+
+	파일 이름은 동일하지만 레이아웃 파일의 내용은 다르다.
+	코드에서는 단순히 레이아웃 파일을 다음과 같이 참조하면 된다.
+
+	```
+	@Override
+		protected void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setContentView(R.layout.activity_main);
+		}
+	```
+
+	시스템은 개발자의 앱이 실행되는 장치 화면 크기에 따라서 가장 적절한 레이아웃 디렉터리를 선택한다.
+
+	```
+	MyProject/
+		res/
+			layout/				# default (portrait)
+				activity_main.xml
+			layout-land/		# landscape
+				activity_main.xml
+			layout-large/		# large (potrait)
+				activity_main.xml
+			layout-large-land/	# large landscape
+				activity_main.xml
+	```
+
+	화면 방향이 수직 방향이면 layout/activity_main.xml 이 선택된다.
+
+	```
+	참고 : 안드로이드는 자동적으로 화면의 크기에 맞추기 위하여 레이아웃을 확대하거나 축소한다.
+	따라서 레이아웃을 작성할 때 UI 요소의 절대적인 크기는 중요치 않다.
+	레이아웃의 구조가 중요하다.
+	예를 들어서 뷰들의 상대적인 크기에 신경 써야 한다.
+	```
+
+	- 비트맵의 생성
+	개발자들은 비트맵들도 해상도에 맞추어서 준비할 필요가 있다.
+	이들 이미지들은 생성하려면 벡타 형식의 원 이미지로부터 다음과 같은 크기로 이미지들을 생성하는 것이 좋다.
+
+	   - xhdpi : 2.0
+	   - hdpi : 1.5
+	   - mdpi : 1.0(baseline)
+	   - ldpi : 0.75
+	
+	만약 xhdpi 장치에 200x200 이미지를 생성한다면 hdpi에는 150x150, mdpi에는 100x100, ldpi 장치에는 75x75 이미지를 생성하면 된다.
+
+	```
+	MyProject/
+		res/
+			drawable-xhdpi/
+				awesomeimage.png
+			drawable-hdpi/
+				awesomeimage.png
+			drawable-mdpi/
+				awesomeimage.png
+			drawable-ldpi/
+				awesomeimage.png
+	```
+
+	`ldpi 자원은 반드시 필요하지 않다. 시스템이 hdpi 자원으로부터 1/2로 줄여서 생성할 수 있기 때문이다.`
+
+	- 다양한 언어 지원
+	UI에 사용되는 문자열들을 코드에서 분리하여 외부 파일에 저장하는 것을 좋은 생각이다.
+	안드로이드에서는 자원 디렉터리가 있어서 이것을 쉽게 할 수 있다.
+	많은 언어를 지원하기 위해서는 res 안에 values 디렉터리를 생성하면 된다.
+	디렉터리 뒤에는 ISO 언어 코드를 붙인다.
+	예를 들어서 value-es는 언어 코드가 "es"인 자원을 포함하고 있는 디렉터리이다.
+
+	```
+	MyProject/
+		res/
+			values/
+				strings.xml
+			values-es/
+				strings.xml
+			values-fr/
+				strings.xml
+	```
+
+	실행 시간에 안드로이드는 사용자의 장치에 설정된 로캘값을 가지고 적절한 문자열을 찾게 된다.
+	예를 들어서 영어로 된 문자열은 /values/strings.xml에 다음과 같이 저장된다.
+
+	```
+	<?xml version="1.0" encoding="utf-8"?>
+	<resources>
+		<string name="title">My Application</string>
+		<string name="hello_world">Hello World!</string>
+	</resources>
+	```
+
+	```
+	참고 : 우리가 장치를 사용하다보면 실행 시간 중에 장치의 구성이 변경되는 경우가 있다.
+	예를 들어서 화면 방향이 변경된다든지, 키보드나 언어가 변경될 수 있다.
+	이러한 변경이 일어나는 경우, 안드로이드는 실행 중인 액티비티를 다시 시작한다.
+	즉 액티비티의 onDestroy()가 호출되고, 그 다음에 onCreate()가 다시 호출된다.
+	이러한 재시작 동작은 우리가 제공한 대체 리소스로 애플리케이션을 자동으로 다시 적재함으로써 새로운 장치의 구성에 애플리케이션이 적응하도록 한다.
+	예를 들어서 화면의 방향이 변경되면 다른 레이아웃을 적용한다.
+	이러한 액티비티 재시작을 올바르게 처리하려면 정상적인 액티비티 생명 주기를 통해 이전 상태를 복원하는 것이 중요하다.
+	안드로이드는 onSaveInstanceState()를 호출한 다음에 액티비티를 소멸시켜 애플리케이션 상태에 대한 데이터를 저장할 수 있다.
+	이후에 액티비티가 재시작되면 onCreate()나 onRestoreInstanceState() 메소드를 통하여 이전 상태를 복원할 수 있다.
+	```
+
+	
