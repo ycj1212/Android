@@ -1509,4 +1509,51 @@
 	보안을 유지하기 위해서는 동일한 사용자 아이디를 공유하려면 동일한 인증서로 서명되어야 한다.
 	애플리케이션이 생성한 파일은 그 애플리케이션의 사용자 아이디가 부여되기 때문에 일반적으로는 다른 패키지가 접근할 수 없다.
 	다른 패키지가 접근하는 것을 허용하려면 getSharedPreferences(), openFileOutput(), openOrCreateDatabase() 등을 이용하여서 새로운 파일을 생성하고 MODE_WORLD_READABLE 또는 MODE_WORLD_WRITEABLE 플래그를 사용하여서 다른 패키지가 그 파일을 읽고 쓸 수 있도록 하여야 한다.
+
+7. 권한 요청하기
+	기본적으로 안드로이드 애플리케이션은 어떠한 권한을 가지지 않는다.
+	즉 고의적으로 다른 사용자나 장치의 데이터에 어떠한 동작도 할 수 없다.
+	만약 애플리케이션이 보호된 기능이나 장치 안의 데이터에 접근하려면 AndroidManifest.xml 파일에 필요한 권한을 나타내는 태그 <uses-permission>을 명시적으로 포함시켜야 한다.
+	예를 들어서 문자 메시지를 받고 싶은 애플리케이션은 다음과 같이 권한을 표시할 수 있다.
 	
+	```
+	AndroidManifest.xml
+	
+	<?xml version="1.0" encoding="utf-8"?>
+	<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+		package="kr.co.company.PermissionTest"
+		android:versionCode="1"
+		android:versionName="1.0" >
+	...
+	<uses-permission android:name="android.permission.RECEIVE_SMS></uses-permission> ☜ 문자 메시지를 받을 수 있는 권한을 요청한다.
+	</manifest>
+	```
+
+	애플리케이션 설치 시에 애플리케이션이 요구된 권한이 패키지 설치자에 의하여 승인된다.
+	패키지 설치자는 애플리케이션의 인증서를 살펴보거나 사용자에게 허락을 구한다.
+	만약 권한이 승인되면 애플리케이션은 원하는 데이터들을 사용할 수 있다.
+	안드로이드 이전 버전에서는 앱 설치시에만 권한을 승인할 수 있었으나 최신 버전에서는 앱의 실행 전에 권한을 다시 승인받도록 할 수 있다.
+	그렇다면 우리가 요청할 수 있는 권한은 어떤 것들이 있는가?
+	전체 권한 리스트는 다음의 웹페이지에 나열되어 있다.
+	
+	`http://developer.android.com/reference/android/Manifest.permission.html`
+
+	중요한 것만을 추리면 다음 표와 같다.
+
+	```
+	권한			/	권한 이름		/	설명
+	지리 정보 사용		/	ACCESS_FINE_LOCATION	GPS와 같은 정밀한 위치 정보 사용
+	전화 걸기		/	CALL_PHONE		애플리케이션이 전화 걸기 기능 사용
+	카메라			/	CAMERA			카메라 기능 사용
+	일정 정보		/	READ_CALENDAR		일정 정보 읽기
+				/	WRITE_CALENDAR		일정 정보 쓰기
+	연락처 정보		/	READ_CONTACTS		연락처 읽기
+				/	WRITE_CONTACTS		연락처 쓰기
+	인터넷			/	INTERNET		인터넷 접속
+	```
+
+---
+## **10. 서비스와 방송 수신자**
+
+1. 서비스
+	애플리케이션을 작성하다 보면 사용자 인터페이스 없이 
