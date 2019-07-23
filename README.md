@@ -1666,4 +1666,58 @@
 	}
 	```
 	
+	먼저 음악을 연주하는 서비스를 작성하고 이어서 이 서비스를 사용하는 액티비티를 제작하여 본다.
+	액티비티에서 서비스를 시작하려면 startService()를 호출하면 된다.
+	이 서비스는 시작 타입의 서비스가 된다.
+
+	- 서비스의 생애주기
+	만약 startService()를 호출하여서 서비스를 시작하였다면 서비스는 stopSelf()를 호출하거나 다른 컴포넌트가 stopService()를 호출할 때까지 실행을 계속한다.
+
+	![Image](service.png)
+
+	만약 컴포넌트가 bindService()를 호출하여서 서비스를 시작하였다면 서비스는 컴포넌트가 서비스에 연결되어 있는 동안에만 실행된다.
+	서비스에 연결된 모든 클라이언트들이 접속을 해제하면 해당 서비스는 소멸된다.
+
+	- 서비스에서 사용자에게 통지하기
+	서비스는 실행 중에 토스트나 상태바를 사용하여서 사용자에게 이벤트를 통지할 수 있다.
+	토스트는 현재 윈도우 상태 메시지가 나타났다가 사라지는 형태이고, 상태바는 상태바에 메시지와 함께 아이콘이 생성되는 것이다.
+	사용자는 아이콘을 눌러서 필요한 액티비티를 실행할 수 있다.
+	일반적으로 상태바 통지 기법이 좋은 방법이다.
+	예를 들어서 파일 다운로드가 완료되었을 경우에는 상태바를 이용하여서 통지하는 것이 좋다.
+	사용자는 상태바를 통하여 반응할 수 있다.
+	사용자가 상태바에서 통지를 선택하면 통지는 새로운 액티비티를 시작할 수 있다.
+	예를 들어서 다운로드된 파일을 볼 수 있다.
+	보다 자세한 내용은 상태바 통지를 참고하여야 한다.
+
+	- 서비스를 전경에서 실행하기
+	전경에서 실행되는 서비스는 사용자의 입장에서 상당히 중요한 것으로 여겨지는 서비스이다.
+	따라서 시스템에 메모리가 부족하다고 해서 중단되서는 안된다.
+	전경 서비스는 반드시 상태바에 "진행중"이라는 이름 아래에 통지를 제공하여야 한다.
+	이것은 서비스가 중단되거나 전경에서 삭제되지 않는 한 통지는 반드시 있어야 한다는 의미이다.
+	
+	예를 들어서 음악을 재생하는 음악 재생기는 전경에서 실행되도록 설정되어야 한다.
+	왜냐하면 사용자가 명시적으로 음악 재생기의 동작을 의식하고 있기 때문이다.
+	상태바의 통지는 현재 노래의 제목을 표시할 수 있다.
+	또 통지를 터치하면 사용자가 상호작용할 수 있는 액티비티를 실행할 수 있어야 한다.
+	
+	서비스가 전경에서 실행되게 하려면 startForeground()를 호출한다.
+	이 메소드는 2개의 매개변수를 가진다.
+	매개변수는 통지의 아이디와 상태바를 위한 Notification 객체이다.
+	예를 들면 다음과 같다.
+
+	```
+	Notification notification = new Notification(R.drawable.icon, getText(R.string.ticker_text), System.currentTimeMillis());
+	Intent notificationIntent = new Intent(this, ExampleActivity.class);
+	PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+	notification.setLatestEventInfo(this, getText(R.string.notification_title), getText(R.string.notification_message), pendingIntent);
+
+	startForeground(ONGOING_NOTIFICATION_ID, notification);
+	```
+
+	서비스를 전경으로부터 삭제하고 싶으면 stopForeground()를 호출한다.
+	이 메소드는 부울값을 받는데, 상태바 통지를 삭제할 것인지를 나타낸다.
+	이 메소드가 서비스를 중지하지 않는다.
+	하지만 전경에서 실행되고 있는 동안에 개발자가 서비스를 중단하면 통지도 삭제된다.
+
+3. IntentService 클래스
 	
