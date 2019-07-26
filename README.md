@@ -2422,4 +2422,60 @@
 	`만약 독자가 SQL 명령어들을 잘 모른다면 인터넷에 많은 자료들이 있으니 참고하기 바란다. http://www.tutorialpoint.com/sql/sql-syntax.htm 에도 상세한 자료가 있으니 참조하면 된다.`
 
 6. 데이터베이스 사용하기
-	안드로이드에서 데이터베이스를 사용하려면 
+	안드로이드에서 데이터베이스를 사용하려면 다음의 2가지 방법 중 하나를 선택하여야 한다.
+	
+	   - SQLiteOpenHelper를 사용하는 방법이다.
+	   - openOrCreateDatabase() 메소드로 데이터베이스 객체를 직접 생성하는 방법
+
+	안드로이드 개발자 페이지에서는 SQLiteOpenHelper 클래스를 사용하는 방법을 권장한다.
+
+	- SQLiteOpenHelper 클래스로 데이터베이스 생성하기
+	SQLiteOpenHelper 클래스는 데이터베이스를 감싸고 있는 도우미 클래스이다.
+	SQLiteOpenHelper 클래스를 사용하면 데이터베이스가 생성되거나 버전이 업그레이드 될 때에 호출되는 콜백 메소드를 개발자가 정의하여서 적절한 처리를 할 수 있다.
+	
+	먼저 SQLiteOpenHelper 클래스에서 상속받은 클래스(예를 들어서 DBHelper)를 정의하고 이 클래스에서 onCreate()와 onUpgrade()를 재정의하면 된다.
+	onCreate()안에는 테이블을 생성하는 SQL 문장을 넣고 onUpgrade() 안에는 데이터베이스를 업그레이드하는 SQL 문장을 넣어주면 된다.
+
+	```
+	SQLiteOpenHelper 클래스
+		- onCreate() : 데이터베이스 안에 테이블과 초기 데이터를 생성한다.
+		- onUpgrade() : 데이터베이스를 업그레이드한다.
+	```
+
+	```
+	class dbHelper extends SQLiteOpenHelper {
+		public dbHelper(Context context) {
+			/** SQLiteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version)
+			 *  SQLiteOpenHelper 생성자이다.
+			 *  매개변수 context에는 데이터베이스를 생성하는 액티비티를 전달한다.
+			 *  name은 데이터베이스 파일 이름이다.
+			 *  factory는 커서를 지정하는 매개변수로서 null을 전달하면 표준 커서가 사용된다.
+			 *  version은 데이터베이스의 버전이다.
+			 */
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			/** SQLiteOpenHelper 클래스의 onCreate() 메소드를 재정의해준다.
+			 *  데이터베이스가 처음으로 생성될 때에 호출된다.
+			 *  SQL 명령어들을 이용하여서 데이터베이스의 테이블을 생성하고 초기화하면 된다.
+			 */
+			db.execSQL("CREATE TABLE contacts ( _id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, tel TEXT)");
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			/** opUpgrade()는 데이터베이스가 업그레이드될 필요가 있을 때 호출된다.
+			 *  데이터베이스의 버전이 올라가면 호출되므로 기존의 테이블을 삭제하고 새로 만들어주면 된다.
+			 *  일반적으로는 기존의 테이블을 버리고 새로운 테이블을 생성한다.
+			 */
+			db.execSQL("DROP TABLE IF EXISTS contact");
+			onCreate(db);
+		}
+	}
+	```
+
+	위와 같이 SQLiteOpenHelper를 상속받은 DBHelper 클래스를 정의하였다면 다음 단계는 액티비티 안에서 DBHelper 클래스의 객체를 생성하는 것이다.
+	이 객체의 getWritableDatabase()나 getReadableDatabase()를 호출하면 SQLiteDatabase 객체가 반환되고 이 객체의 execSQL() 메소드를 이용하면 SQL 문장을 실행할 수 있다.
+	
