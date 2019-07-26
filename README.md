@@ -2177,4 +2177,195 @@
 	   - putString(String key, String value)
 
 3. 내부 공간에 파일 만들기
-	애플리케이션은 장치의
+	애플리케이션은 장치의 내부 저장 공간에 파일을 저장할 수 있다.
+	내부 저장 공간에 저장되는 파일은 해당 애플리케이션만 접근이 가능하다.
+	즉 다른 애플리케이션은 접근할 수 없다.
+	사용자가 애플리케이션을 제거하면 이들 파일들도 제거된다.
+
+	- 파일 쓰기
+	내부 공간에 사적인 파일을 생성하여 데이터를 기록하는 절차를 간단한 예제로 살펴보자.
+
+	```
+	String FILENAME = "test.txt";
+	String string = "hello world!";
+
+	FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+	fos.write(string.getBytes());
+	fos.close();
+
+	* openFileOutput(String name, int mode)
+		출력 전용의 파일을 오픈한다.
+		여기서 name은 오픈하고자 하는 파일의 이름이며, mode는 다음과 같은 상수 중의 하나이다.
+		- MODE_PRIVATE          사적인 파일
+		- MODE_APPEND           파일의 끝에 추가한다.
+		- MODE_WORLD_READABLE   다른 애플리케이션이 읽을 수 있다.
+		- MODE_WORLD_WRITEABLE  다른 애플리케이션이 쓸 수 있다.
+	
+	* openFileInput(String name)
+		입력 전용의 파일을 오픈한다.
+
+	* openFileOutput()과 openFileInput()은 각각 FileOutputStream과 FileInputStream을 반환한다.
+	  이들 반환값들은 표준 자바 라이브러리에서 사용되는 객체이다.
+	  따라서 read()와 write() 등의 관련 메소드들을 사용할 수 있다.
+	```
+
+	MODE_PRIVATE은 새로운 파일을 생성하거나 같은 이름의 파일이 있으면 삭제하고 다시 생성한다.
+	작성된 파일은 애플리케이션만 사용할 수 있다.
+
+	- 파일 읽기
+	안드로이드에서 파일에 데이터를 기록하는 절차를 자세히 살펴보자.
+	예를 들어서 다음과 같은 코드를 생각해 볼 수 있다.
+
+	```
+	String FILENAME = "test.txt";
+	try{
+		FileInputStream fis = openFileInput(FILENAME); // 읽고 싶은 파일의 이름을 인수로 openFileInput()을 호출한다.
+		byte[] buffer = new byte[1000];
+		while(fis.read(buffer) != -1) { // read()를 사용하여서 파이롤부터 바이트를 읽는다.
+			// 데이터를 이용한다.
+		}
+		fis.close();	// close()로 스트림을 닫는다.
+	}
+	catch (java.io.FileNotFoundException e) { }
+	catch (Exception e) { }
+	```
+
+	```
+	만약 컴파일 시간에 정적인 파일을 저장하려면 프로젝트의 res/raw/에 저장하라.
+	이 파일을 읽으려면 openRawResource()로 읽을 수 있다.
+	인수로는 R.raw.<filename> 리소스 ID를 주면 된다.
+	이 메소드는 InputStream 객체를 반환하고 이것을 이용해서 파일을 읽을 수 있다.
+	```
+
+4. 외부 저장 공간
+	일반적으로 외부 저장 공간은 탈착이 가능한 SD카드이다.
+	안드로이드 장치는 외부 저장 공간을 지원한다.
+	우리는 외부 저장 공간에도 파일을 저장할 수 있다.
+	이 외부 저장 공간에 저장된 파일들은 누구나 읽을 수 있으며 사용자에 의해서 변경될 수 있다.
+	한 가지 주의할 점은 외부 파일은 항상 접근 가능한 것은 아니라는 점이다.
+	만약 사용자가 SD카드를 제거한다면 접근이 불가능하다.
+
+	- 내부 공간과 외부 공간의 비교
+	모든 안드로이드 장치는 내부 저장 공간과 외부 저장 공간을 가지고 있다.
+	내부 저장 공간은 주로 장치 안에 내장된 비휘발성의 메모리이고 외부 저장 공간은 마이크로 SD카드로 탈착이 가능하다.
+	이들 공간을 비교하면 다음과 같다.
+
+		```
+		내부 공간													 외부 공간
+		항상 사용 가능										 		 //	항상 사용 가능X, 사용자가 SD카드를 제거할 수도 있다.
+		여기에 저장되는 파일은 해당되는 앱만 사용이 가능하다.			// 누구나 읽을 수 있다.
+		사용자가 앱을 제거하면 시스템이 앱이 사용하였던 공간도 삭제한다. //	사용자가 앱을 제거할 때, 공용 디렉터리에 저장된 파일은 삭제되지 않는다.
+																	   다만 getExternalFIlesDir()가 반환하는 디렉터리에 파일을 저장한 경우만 시스템이 삭제한다.
+		```
+
+	`외부 파일들은 언제든지 삭제가 가능하다. 즉 사용자가 컴퓨터에 연결하여서 삭제할 수 있다. 또 누구든지 읽고 변경할 수 있다는 점에 유의하여야 한다.`
+	
+	- 외부 저장 공간 사용 가능 검사
+	외부 저장 공간에 작업하기 전에 먼저 getExternalStorageState()를 호출하여서 외부 미디어가 있는지를 체크하야여 한다.
+	외부 미디어는 장착되어 있을 수도 있고 없을 수도 있고 읽기 전용일 수도 있다.
+	미디어의 사용 여부를 체크하는 코드는 다음과 같다.
+	
+	```
+	String state = Environment.getExternalStorageState();
+	if(state.equals(Environment.MEDIA_MOUNTED)) {
+		// 미디어에 쓰고 읽을 수 있다.
+	} else if(state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
+		// 미디어를 읽을 수 있다.
+	} else{
+		// 쓰거나 읽을 수 있다.
+	}
+	```
+
+	- 매니페스트 파일 설정
+	외부 저장소의 파일을 읽거나 쓰려면 앱의 READ_EXTERNAL_STORAGE 또는 WRITE_EXTERNAL_STORAGE 시스템 권한을 획득해야 한다.
+	이것이 없으면 외부 저장 공간에 파일이 기록되지 않는다.
+
+	```
+	<manifest ...>
+		<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+		...
+	</manifest>
+	```
+
+	- 공유되는 파일 저장하기
+	사용자가 앱을 통하여 획득한 새로운 파일은 원칙적으로 다른 앱들이 접근할 수 있는 공용 디렉터리에 저장되어야 한다.
+	공용 디렉터리에 저장되면 사용자가 장치로부터 파일을 쉽게 복사할 수 있다.
+	공용 디렉터리는 외부 저장 공간의 루트에 위치하며 Music/, Pictures/, Ringtones/와 같은 이름을 사용한다.
+
+	공용 디렉터리를 나타내는 File 객체를 얻기 위해서는 getExternalStoragePublicDirectory()를 호출한다.
+	이때 디렉터리의 종류를 DIRECTORY_MUSIC, DIRECTORY_PICTURES, DIRECTORY_RINGTONES와 같이 인수로 전달하여 호출한다.
+	파일을 이들 공유 디렉터리로 저장하면 시스템의 미디어 스캐너가 우리들의 파일을 올바르게 분류할 수 있다.
+	예를 들어서 DIRECTORY_RINGTONES 아래에 저장된 벨소리 파일은 환경 설정에서 음악이 아닌 벨소리로 올바르게 표시된다.
+	
+	예를 들어서 공용 디렉터리에 새로운 사진 앨범을 위한 디렉터리를 생성하는 메소드는 다음과 같다.
+
+	```
+	public File getAlbumStorageDir(String albumName){
+		File file = new File(Environment.getExternalStoragePublicDirectory(
+			Environment.DIRECTORY_PICTURES), albumName);
+		if(!file.mkdirs()){
+			Log.e(LOG_TAG, "디렉터리를 생성할 수 없습니다.");
+		}
+		return file;
+	}
+	```
+
+	- 사적인 파일 저장하기
+	다른 앱들에는 전혀 쓸모가 없는 사적인 파일을 저장하고자 한다면 getExternalFilesDir()을 호출하여서 얻어지는 사적인 공간을 사용하여야 한다.
+	이 메소드도 디렉터리의 종류를 나타내는 type 매개변수를 가진다. 특별한 미디어 종류가 필요없다면 null을 전달하면 사적인 공간의 루트 디렉터리가 반환된다.
+	
+	안드로이드 4.4부터는 사적인 공간에 파일을 쓰거나 읽는 경우에는 READ_EXTERNAL_STORAGE나 WRITE_EXTERNAL_STORAGE이 필요없다.
+	따라서 낮은 안드로이드 버전에서만 다음과 같이 maxSdkVersion 속성을 추가하면 된다.
+
+	```
+	<manifest ...>
+		<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+						 android:maxSdkVersion="18" />
+		...
+	</manifest>
+	```
+
+	```
+	사용자가 앱을 제거하면 사적인 디렉터리는 전부 삭제된다.
+	따라서 시스템의 미디어 스캐너가 이들 디렉터리의 파일을 읽을 수 없다.
+	따라서 MediaStore 콘텐트 제공자를 통하여 접근할 수 없다.
+	따라서 사용자에 속하는 미디어를 저장할 때 이들 디렉터리를 사용하면 안된다.
+	즉 사진이나 음악 등을 사적인 디렉터리에 저장하면 안된다는 것이다.
+	이들 파일들은 모두 공용 디렉터리에 저장되어야 한다.
+	```
+
+	사적인 파일을 외부 공간에 저장하는 전형적인 코드를 살펴보자.
+	
+	```
+	void createExternalStoragePrivateFile(){
+		// 외부 저장 공간의 디렉터리를 얻어서 파일 객체를 생성한다.
+		File file = new File(getExternalFilesDir(null), "DemoFile.jpg);
+		try{
+			...
+		} catch (IOException e) {
+			// 오류 : 외부 미디어가 마운드되어 있지 않음
+			...
+		}
+	}
+
+	* File getExternalFilesDir(String type)
+	  외부 파일 시스템의 디렉터리에 대한 절대 경로를 반환한다.
+	  애플리케이션은 여기에다가 파일을 저장할 수 있다.
+	  이 메소드는 type매개변수를 가지는데 type은 사용자가 원하는 서브 디렉터리의 타입이다.
+	  즉 DIRECTORY_MUSIC이나 DIRECTORY_RINGTONES와 같은 것들이다.
+	  만약 null을 전달하면 루트 디렉터리가 반환된다.
+	  이 메소드는 필요하다면 적절한 디렉터리를 생성한다.
+	  디렉터리의 타입을 지정하게 되면 안드로이드의 미디어 탐색기가 적절하게 파일들을 분류한다.
+	  예를 들어서 통화 연결음은 ringtones로 분류한다.
+	  사용자가 애플리케이션 설치를 취소하면 디렉터리와 모든 내용물은 삭제된다.
+	```
+
+5. 데이터베이스
+	안드로이드는 SQLite라고 하는 데이터베이스를 지원한다.
+	SQLite는 이름에서도 알 수 있듯이 초경량급의 데이터베이스이다.
+	자세한 정보는 www.sqlite.org에서 얻을 수 있다.
+	SQLite는 C언어로 작성된 효율적인 SQL 데이터베이스 엔진을 가지고 있다.
+	SQLite는 안드로이드와 아이폰을 비롯한 많은 모바일 장치에서 사용되는 데이터베이스이다.
+	SQLite에서는 데이터를 디스크 파일에 저장한다.
+	
+
