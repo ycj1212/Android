@@ -2121,3 +2121,60 @@
 	SharedPreferences 클래스를 사용하여 부울형, 실수형, 정수형, 문자열과 같은 기초 자료형들을 저장할 수 있다.
 	저장된 데이터는 사용자 애플리케이션이 종료되더라도 저장된다.
 	
+	"공유"가 붙은 이유는 여러 개의 액티비티들이 이 프레퍼런스를 공유할 수 있기 때문이다.
+	하나의 액티비티에서 값을 변경하면 다른 액티비티에서도 변경된 값을 읽게 된다.
+	즉 액티비티 간의 데이터 교환 목적으로도 사용이 가능하다.
+	공유 프레퍼런스를 얻기 위해서는 다음의 2가지 메소드 중에서 하나를 사용하여야 한다.
+
+	- getSharedPreferences(name, mode)
+	이름으로 식별되는 여러 개의 프레퍼런스 파일이 필요하면 이 메소드를 사용한다.
+
+	- getPreferences(mode)
+	하나의 프레퍼런스 파일만 필요하다면 이것을 사용한다.
+	이 파일은 액티비티마다 하나만 존재하므로 파일 이름이 필요 없다.
+	
+	```
+	public class Calc extends AppCompatActivity {
+		public static final String PREFS_NAME = "MyPrefsFile";
+
+		@Override
+		protected void onCreate(Bundle state){
+			super.onCreate(state);
+			...
+
+			// 프레퍼런스 파일에서 "silentMode"값을 읽는다.
+			SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+			boolean silent = settings.getBoolean("silentMode", false);
+			setSilent(silent);
+		}
+
+		@Override
+		protected void onStop(){
+			super.onStop();
+
+			// 프레퍼런스 파일에서 "silentMode" 값을 쓴다.
+			// 에디터 객체가 필요하며 반드시 commit()를 호출하여야 한다.
+			SharedPreferences.settings = getSharedPreferences(PREFS_NAME, 0);
+			SharedPreferences.Editor editor = setting.edit();
+			editor.putBoolean("silentMode", mSilentMode);
+			editor.commit();
+		}
+	}
+	```
+
+	프레퍼런스 파일에서 값을 읽으려면 다음과 같은 메소드를 사용한다.
+
+	   - getBoolean(String key, boolean defValue)
+	   - getInt(String key, int defValue)
+	   - getString(String key, String defValue)
+
+	   - key는 데이터의 키값, defValue는 데이터의 값이 설정이 안 됐을 경우에 사용하는 디폴트 값이다.
+
+	프레퍼런스 파일에서 값을 쓰려면 Editor 객체의 다음과 같은 메소드를 사용한다.
+
+	   - putBoolean(String key, boolean value)
+	   - putInt(String key, int value)
+	   - putString(String key, String value)
+
+3. 내부 공간에 파일 만들기
+	애플리케이션은 장치의
