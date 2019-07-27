@@ -2422,7 +2422,7 @@
 	`만약 독자가 SQL 명령어들을 잘 모른다면 인터넷에 많은 자료들이 있으니 참고하기 바란다. http://www.tutorialpoint.com/sql/sql-syntax.htm 에도 상세한 자료가 있으니 참조하면 된다.`
 
 6. 데이터베이스 사용하기
-	안드로이드에서 데이터베이스를 사용하려면 다음의 2가지 방법 중 하나를 선택하여야 한다.
+   안드로이드에서 데이터베이스를 사용하려면 다음의 2가지 방법 중 하나를 선택하여야 한다.
 	
 	   - SQLiteOpenHelper를 사용하는 방법이다.
 	   - openOrCreateDatabase() 메소드로 데이터베이스 객체를 직접 생성하는 방법
@@ -2479,3 +2479,176 @@
 	위와 같이 SQLiteOpenHelper를 상속받은 DBHelper 클래스를 정의하였다면 다음 단계는 액티비티 안에서 DBHelper 클래스의 객체를 생성하는 것이다.
 	이 객체의 getWritableDatabase()나 getReadableDatabase()를 호출하면 SQLiteDatabase 객체가 반환되고 이 객체의 execSQL() 메소드를 이용하면 SQL 문장을 실행할 수 있다.
 	
+	- SQLiteDatabase getWritableDatabase()
+	읽기/쓰기 모드로 데이터베이스를 오픈한다.
+	만약 처음으로 호출되는 경우에는 onCreate()가 호출된다.
+	만약 데이터베이스 스키마가 달라지는 경우에는 onUpgrade()가 호출된다.
+	
+	- SQLiteDatabase getReadableDatabase()
+	읽기 전용 모드로 데이터베이스를 오픈한다.
+	근본적으로 getWriteableDatabase()와 같지만 디스크가 꽉 찼거나 권한이 없어서 데이터베이스를 읽기 전용으로만 오픈할 때 사용한다.
+	
+	앞에서 정의한 DBHelper를 이용하여서 데이터베이스를 사용하는 액티비티를 작성하여 보면 다음과 같다.
+
+	```
+	public class MainActivity extends AppCompatActivity {
+		DBHelper helper;
+		SQLiteDatabase db;
+
+		public void onCreate(Bundle savedInstancedState) {
+			...
+			// 액티비티에서는 먼저 DBHelper의 객체를 생성한다.
+			helper = new DBHelper(this);
+			
+			/** 데이터베이스가 필요하면 getWritableDatabase()나 getReadableDatabase()를 호출한다.
+			 *  이들은 모두 SQLiteDatabase 객체를 반환하고 이들 객체는 데이터베이스를 나타내며 데이터베이스 연산을 제공하는 메소드를 제공한다.
+			 *  이들 메소드들을 사용해서 데이터를 저장하거나 삭제하면 된다.
+			 */
+			try {
+				db = helper.getWritableDatabase();
+			} catch (SQLiteException ex) {
+				db = helper.getReadableDatabase();
+			}
+			// 이제 필요할 때마다 db를 통해서 SQL문장을 실행하면 된다.
+			db.execSQL("INSERT INTO contact VALUES (null, '" + name + "', '" + tel + "');");
+		}
+	}
+	```
+
+	```
+	데이터베이스 테이블을 생성할 때, 자동으로 증가되는 값을 _id 필드로 정의하는 것이 권장되는데, _id 필드가 있으면 레코드를 빠르게 탐색할 수 있다.
+	물론 데이터베이스를 개인적인 용도로만 사용한다면 없어도 된다.
+	하지만 만약 콘텐트 제공자를 구현한다면 반드시 유일한 _id를 포함시켜야 한다.
+	```
+
+	- SQL을 사용하여서 데이터 추가, 삭제, 쿼리하기
+	SQLite 데이터베이스에 데이터를 추가, 삭제, 검색하는 작업은 기본적으로 SQL 문장을 통하여 이루어진다.
+	SQLiteDatabase 객체는 다음과 같이 일반적인 SQL문장을 실행할 수 있는 메소드를 제공한다.
+
+	   - void execSQL(String sql)	-	SELECT 명령을 제외한 모든 SQL 문장을 실행한다. 예를 들어서 CREATE TABLE, DELETE, INSERT 등을 실행한다.
+	   
+	   - Cursor rawQuery(String sql, String[] selectionArgs)	-	SELECT 명령어를 사용하여 쿼리를 실행하려면 rawQuery()를 사용하면 된다.
+	   쿼리의 결과는 Cursor 객체로 반환된다.
+	   Cursor 객체는 쿼리에 의하여 생성된 행들을 가리키고 있다.
+	   Cursor는 데이터베이스에서 결과를 순회하고 데이터를 읽는 데 사용되는 표준적인 메커니즘이다.
+
+	예를 들어서 다음과 같은 데이터베이스 테이블을 가정하자
+
+	```
+	ID	NAME	AGE	ADDRESS	SALARY
+	1	Kim		32	Busan	2000.00
+	2	Park	25	Seoul	1500.00
+	```
+
+	예를 들어서 CUSTOMERS 테이블에 (1, 'Hong', 32, 'Seoul, Korea', 2000.00)레코드를 추가하는 문장은 다음과 같이 작성할 수 있다.
+
+	```
+	SQLiteDatabase db = helper.getWritableDatabase();
+	db.execSQL("INSERT INTO CUSTOMERS (ID, NAME, AGE, ADDRESS, SALARY)
+		VALUES (1, 'Hong', 32, 'Seoul, Korea', 2000.00);";
+	```
+
+	쿼리에 관련된 SQL 문장은 rawQuery() 메소드를 사용하여야 한다.
+	예를 들어서 CUSTOMERS 테이블에서 ID, NAME, SALARY만을 출력하려면 다음과 같은 문장을 사용한다.
+
+	```
+	SQLiteDatabase db = helper.getWritableDatabase();
+	Cursor cursor = db.rawQuery("SELECT ID, NAME, SALARY FROM CUSTOMERS", null);
+	```
+
+	조건을 주어서 쿼리할 수도 있다.
+	연봉이 2000 이상인 사람의 아이디와 이름, 월급을 출력한다.
+
+	```
+	SQLiteDatabase db = helper.getWritableDatabase();
+	Cursor cursor = db.rawQuery("SELECT ID, NAME, SALARY FROM CUSTOMERS WHERE SALARY > 2000;", null);
+	```
+
+	데이터베이스에서 쿼리를 실행하면 커서 집합을 반환한다.
+	개발자는 이 커서 집합을 순회하면서 레코드들을 출력할 수 있다.
+	전형적인 예를 보이면 다음과 같다.
+
+	```
+	// 쿼리의 결과가 커서로 반환된다.
+	Cursor cursor = sqliteDB.rawQuery("SELECT NAME FROM CUSTOMERS", null);
+	// 만약 커서가 결과를 가지고 있으면
+	if (cursor != null) {
+		// 커서를 첫 번째 레코드로 이동한다.
+		if (cursor.moveToFirst()) {
+			do {
+				// 커서로부터 이름을 얻는다.
+				String name = cursor.getString(cursor.getColumnIndex("NAME"));
+				// 이름을 ArrayList인 list에 추가한다.
+				list.add(name);
+				// 다음 레코드로 간다.
+			} while (cursor.moveToNext());
+		}
+	}
+	```
+
+	- 전용 메소드를 사용하여서 데이터 추가, 삭제, 쿼리하기
+	SQLiteDatabase 객체는 데이터베이스에 데이터를 추가, 삭제, 검색하는 전용 메소드도 지원한다.
+
+	안드로이드는 전용 메소드도 제공한다.
+	어떤 경우에는 전용 메소드가 더 편리하다.
+	개발자의 취향에 맞는 방법을 사용하면 된다.
+	query()메소드를 사용하는 전형적인 예제 문장을 살펴보자.
+	연봉이 2000 이상이고 나이가 25살 미만인 고객만을 검색하여 보자.
+
+	```
+	String[] tableColumns = new String[] {
+		"ID",
+		"NAME"
+	};
+	String whereClause = "SALARY > ? AND AGE < ?";
+	String[] whereArgs = new String[] {
+		"2000",
+		"25"
+	};
+	String orderBy = "AGE";
+	Cursor c = sqLiteDatabase.query("CUSTOMERS", tableColumns, whereClause, whereArgs, null, null, orderBy);
+	```
+
+	위의 코드에서 SQL안의 ? 기호는 whereArgs 배열에 있는 문자열로 차례대로 대치된다.
+	위의 문장들은 다음과 같은 SQL query 문장과 동일하다.
+
+	```
+	String queryString = "SELECT ID, NAME FROM CUSTOMERS " + " WHERE SALARY > ? AND AGE < ? ORDER BY AGE";
+	String[] whereArgs = new String[] {
+		"2000",
+		"25"
+	};
+	sqLiteDatabase.rawQuery(queryString, whereArgs);
+	```
+
+	데이터베이스에 추가할 때도 전용 메소드 insert()를 사용할 수 있다.
+	간단하게 사용법을 살펴보자.
+	먼저 ContentValue는 put(key, value)을 가지고 있는 클래스로서 (키, 값)의 형태로 필드값을 저장할 수 있다.
+
+	```
+	SQLiteDatabase db = mDbHelper.getWritableDatabase();
+	ContentValues values = new ContentValues();
+
+	values.put("NAME", "Kim");
+	values.put("AGE", "26");
+	values.put("ADDRESS", "Incheon");
+	values.put("SALARY", "3000");
+
+	long newRowId;
+	newRowId = db.insert("CUSTOMERS", null, values);
+	```
+
+	- SQLiteOpenHelper 없이 데이터베이스 사용하기
+	SQLiteOpenHelper 없이도 얼마든지 데이터베이스를 사용할 수 있다.
+	먼저 openOrCreateDatabase() 메소드를 호출하여서 데이터베이스 객체를 생성하거나 오픈한다.
+
+	- 데이터베이스 디버깅
+	안드로이드 SDK는 sqlite3라고 불리는 명령행 도구를 포함하고 있다.
+	sqlite3를 실행하면 테이블을 화면에 표시하거나 SQL 명령어를 실행할 수 있다.
+	adb shell로 쉘을 실행한 후에 sqlite3를 실행하면 된다.
+
+7. 데이터베이스와 어댑터
+많은 데이터가 저장된 데이터베이스라면 쿼리를 실행하여 그 결과를 화면에 표시하는 것도 상당한 시간이 걸릴 수 있다.
+따라서 애플리케이션을 효율적으로 작성하는 것이 필요하다.
+이런 경우에 사용할 수 있는 객체가 SimpleCursorAdapter 객체이다.
+이 객체는 데이터베이스와 화면을 연결하는 객체로 데이터베이스에서 데이터를 읽어서 정해진 레이아웃으로 화면에 표시한다.
