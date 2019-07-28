@@ -2652,3 +2652,58 @@
 따라서 애플리케이션을 효율적으로 작성하는 것이 필요하다.
 이런 경우에 사용할 수 있는 객체가 SimpleCursorAdapter 객체이다.
 이 객체는 데이터베이스와 화면을 연결하는 객체로 데이터베이스에서 데이터를 읽어서 정해진 레이아웃으로 화면에 표시한다.
+
+---
+## **13. 네트워크**
+
+1. 네트워킹 상태 조회
+
+모바일 장치에서 이용 가능한 네트워크는 상당히 다양하다.
+최근의 스마트폰이라면 3G나 4G와 같은 모바일 네트워크, 와이파이, 블루투스, 근거리 통신(NFC) 등은 대부분 지원하고 있다.
+
+현재 어떤 네트워크가 사용 가능한지를 프로그램에서 알려면 어떻게 하면 될까?
+안드로이드에서는 네트워크의 현재 상태에 대한 정보를 반환하는 ConnectivityManager라는 클래스가 있다.
+ConnectivityManager 클래스는 네트워크 연결 상태를 감시하고 만약 네트워크 연결 상태가 변경되면 다른 애플리케이션에 방송한다.
+또 하나의 네트워크 연결이 끊기면 다른 네트워크로 연결을 시도한다.
+현재 어떤 네트워크가 사용 가능한지를 파악하려면 다음과 같이 ConnectivityManager 클래스의 객체를 얻어서 getNetworkInfo()를 호출하면 알 수 있다.
+
+```
+ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+NetworkInfo activeNet = manager.getActiveNetworkInfo();
+if(activeNet != null){
+	if(activeNet.getType() == ConnectivityManager.TYPE_WIFI) {
+		display.setText(activeNetwork.toString());
+	} else if(activeNet.getType() == ConnectivityManager.TYPE_MOBILE) {
+		display.setText(activeNetwork.toString());
+	}
+}
+```
+
+getActiveNetworkInfo() 메소드는 NetworkInfo 객체를 반환한다.
+NetworkInfo 객체는 네트워크의 현재 상태를 반환하는 많은 메소드를 제공한다.
+
+- DetailedState getDetailedState() : 네트워크의 상세한 상태를 보고한다.
+- String getExtraInfo() : 부가적인 정보를 보고한다.
+- String getTypeName() : "WIFI" 나 "MOBILE"과 같은 문자열 이름을 반환한다.
+- getType() : 네트워크의 종류를 반환한다.
+- boolean isAvailable() : 네트워크가 사용 가능한지를 보고한다.
+- boolean isConnected() : 네트워크가 연결되어 있는지를 보고한다.
+- boolean isConnectedOrConnecting() : 네트워크가 연결되어 있는지 또는 연결되는 중인지를 보고한다.
+- boolean isRoaming() : 현재 로밍 상태인지를 보고한다.
+- String toString() : 네트워크의 전체 상태를 문자열로 보고한다.
+
+
+NetworkInfo 객체의 getType() 함수는 ConnectivityManager 안에 정의된 다음과 같은 상수들을 반환한다.
+
+- TYPE_MOBILE : 디폴트 모바일 네트워크
+- TYPE_MOBILE_DUN : DUN 방식의 모바일 네트워크
+- TYPE_MOBILE_HIPRI : High Priority 모바일 네트워크
+- TYPE_MOBILE_MMS : MMS 방식의 모바일 네트워크
+- TYPE_MOBILE_SUPL : SUPL 방식의 모바일 네트워크
+- TYPE_WIFI : 디폴트 WIFI 네트워크
+- TYPE_WIMAX : 디폴트 WiMAX 네트워크
+- TYPE_BLUETOOTH : 블루투스 네트워크
+
+
+2. 웹에서 파일 다운로드
+애플리케이션에서는 가끔 인터넷에서 텍스트나 이미지와 같은 자원들을 다운로드 할 필요가 있다.
