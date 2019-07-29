@@ -2824,4 +2824,100 @@ startActivity(intent);
 // 인텐트를 이용하여서 웹브라우저를 실행한다.
 ```
 
+
 4. XML 처리
+인터넷을 통하여 전달되는 데이터는 주로 XML 형식으로 되어 있다.
+우리는 사실 XML과는 무척 친근하데 안드로이드의 화면 구성을 XML로 하기 때문이다.
+안드로이드에서 XML 처리가 필요한 경우가 서버에서 제공하는 데이터를 읽어 와서 스마트폰의 화면에 표시하는 경우이다.
+이들 정보는 모두 XML 형태로 제공된다.
+따라서 이들 XML 정보를 해석하여 필요한 정보를 추출하여야 한다.
+XML 문서에서 필요한 데이터를 추출해내는 작업은 텍스트 처리를 거치면 되겠지만 이러한 작업을 매번 한다는 것은 시간 낭비이다.
+
+XML은 워낙 많이 사용되므로 이것을 전문적으로 처리해주는 파서(Parser)들이 존재한다.
+안드로이드에도 여러 가지 파서들이 포함되어 있다.
+DOM, SAX, PullParser등이 지원되는데 여기서는 DOM 파서만을 간단히 살펴보자.
+
+```
+DOM(Document Object Model) : 요소들을 한 번에 트리 구조로 파싱하여 메모리에 저장, 언제든지 원하는 요소에 대한 정보를 얻을 수 있다.
+메모리는 많이 차지한다.
+SAX(Simple API for XML) : 라인 단위로 파싱하기 때문에 메모리의 소모가 적다.
+하지만 지나쳐간 요소의 정보를 얻고 싶으면 다시 파싱하여야 한다.
+PullParser : SAX와 유사하지만 원하는 부분까지만 파싱이 가능하다.
+```
+
+- XML DOM 기초
+DOM(Document Object Model)은 W3C의 표준으로 XML 문서에 접근하고 처리하는 표준적인 방법을 정의한다.
+DOM은 XML 문서를 트리 구조로 표현한다.
+DOM은 문서 요소의 객체(Object), 특징(Property), 메소드(Interface)를 정의한다.
+한마디로 XML DOM은 XML 요소를 구하고 변경하고, 추가, 삭제하는 방법의 표준이라 할 수 있다.
+
+DOM에서 XML 문서의 모든 것은 노드(node)라고 불린다.
+- 전체 문서는 도큐먼트 노드(document node)이다.
+- 모든 XML 요소는 요소 노드(element node)이다.
+- XML 요소 안의 텍스트는 텍스트 노드(text node)이다.
+- 모든 속성은 어트리뷰트 노드(attribute node)이다.
+
+간단한 XML파일을 이용하여서 이것의 개념을 좀 더 명확하게 살펴보자.
+
+```
+<?xml version="1.0" encoding="ISO-8859-1"?>
+	<moviestore>
+		<movie category="drama" >
+			<title lang="en" >Life of Pi</title>
+			<director>Ang Lee</director>
+			<year>2012</year>
+			<price>15000</price>
+		</movie>
+		<movie category="fantasy" >
+			<title lang="en" >Hobbit</title>
+			<director>Peter Jackson</director>
+			<year>2012</year>
+			<price>20000</price>
+		</movie>
+	</moviestore>
+```
+
+위의 XML의 루트 노드는 <moviestore>이다.
+문서의 다른 노드들은 <moviestore>안에 포함된다.
+루트 노드<moviestore>는 2개의 <movie>노드를 포함한다.
+첫 번째 <movie>노드는 다시 <title>, <director>, <year>, <price> 라는 4개의 노드를 가지고 있다.
+이들 노드들은 다시 각자 하나의 텍스트 노드를 가지고 있다.
+
+DOM 처리에서 가장 혼동을 가져오는 문제가 요소 노드가 텍스트를 가지고 있을 거라고 생각하는 점이다.
+하지만 요소 노드의 텍스트는 텍스트 노드에 저장된다.
+예를 들어서 위의 예제에서 <year>2012</year>문장에서 엘리멘트 노드 <year>는 "2012"를 값으로 가지는 텍스트 노드를 가지고 있다.
+"2012"는 <year> 요소의 값은 아니다.
+
+- 자바 DOM XML 파서 생성하기
+javax.xml.parsers.DocumentBuilderFactory 클래스를 이용하면 자바 DOM XML 파서를 생성할 수 있다.
+
+```
+DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+DocumentBuilder builder = null;
+try{
+	builder = builderFactory.newDocumentBuilder();
+} catch(ParserConfigurationException e) {
+	e.printStackTrace();
+}
+```
+
+위의 코드에서 DocumentBuilder 객체가 DOM 파서이다.
+이 DOM 파서를 이용하여서 XML파일을 DOM 객체들로 파싱할 수 있다.
+
+- 파서로 XML 파싱하기
+DocumentBuilder를 이용하여서 XML파일을 DOM 트리로 파싱하는 것은 다음과 같다.
+
+```
+try{
+	Document document = builder.parse(new FileInputStream("data\\text.xml"));
+} catch (SAXException e) {
+	e.printStackTrace();
+} catch (IOException e) {
+	e.printStackTrace();
+}
+```
+
+parse() 메소드를 호출하면 XML문서가 DOM 트리 구조로 변환된다.
+지금부터는 DocumentBuilder로부터 받은 Document 객체를 순회하면서 노드들을 끄집어내면 된다.
+애플리케이션 작성시에 아주 편리한 메소드가 있는데 바로 getElementsByTagName()이다.
+이 메소드는 사용자가 트리 구조에서 필요한 태그가 있는 노드들을 찾아서 리스트 형태로 만들어서 반환한다.
