@@ -2921,3 +2921,42 @@ parse() 메소드를 호출하면 XML문서가 DOM 트리 구조로 변환된다
 지금부터는 DocumentBuilder로부터 받은 Document 객체를 순회하면서 노드들을 끄집어내면 된다.
 애플리케이션 작성시에 아주 편리한 메소드가 있는데 바로 getElementsByTagName()이다.
 이 메소드는 사용자가 트리 구조에서 필요한 태그가 있는 노드들을 찾아서 리스트 형태로 만들어서 반환한다.
+
+---
+AppCompatActivity 클래스는 Activity의 자식클래스이다.
+액티비티는 안드로이드에서 애플리케이션을 구성하는 컴포넌트 중 하나이다.
+사용자가 화면을 통하여 어떤 작업을 할 수 있도록 하는 컴포넌트
+
+onCreate() 메소드는 액티비티가 생성되는 순간에 딱 한번 호출되기 때문에 모든 초기화와 사용자 인터페이스 설정이 여기서 이루어져야 한다.
+Activity클래스의 메소드
+
+This method receives the parameter savedInstanceState, which is a Bundle object containing the activity's previously saved state.
+If the activity has never existed before, the value of the Bundle object is null.
+
+savedInstanceState는 애플리케이션이 이전에 실행되었던 상태를 전달하여 준다.
+
+
+Class that answers queries about the state of network connectivity.
+It also notifies applications when network connectivity changes.
+
+
+getSystemService(Context.CONNECTIVITY_SERVICE) : ConnectivityManager 객체를 얻는다.
+
+getSystemService
+Return the handle to a system-level service by name.
+The class of the returned object varies by the requested name.
+
+CONNECTIVITY_SERVICE
+Use with getSystemService(java.lang.String) to retrieve a ConnectivityManager for handling management of network connections.
+
+NetworkInfo 네트워크의 현재 상태를 반환
+
+getActiveNetworkInfo()메소드는 현재 어떤 네트워크가 사용 가능한지 알 수 있다.
+
+ACCESS_NETWORK_STATE
+Allows applications to access information about networks.
+
+<uses-permission> 사용 권한 요청
+<requestFocus>
+Any element representing a View object can include this empty element, which gives its parent initial focus on the screen. 
+You can have only one of these elements per file.
