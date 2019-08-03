@@ -91,11 +91,109 @@ Window 10은 데스크탑, 노트북, 태블릿, 스마트폰에 통합된 플�
 
 ### **# 앱 작성 절차**
 
-
-
 ## **3. 사용자 인터페이스 기초**
 
 ## **4. 이벤트 처리**
+
+### **# 이벤트를 처리하는 방법**
+
+이벤트 구동 방식에는 애플리케이션이 다른 작업을 하고 있다가 사용자의 입력이 발생하면 이벤트가 발생하고 애플리케이션은 이 이벤트를 처리하면 된다.
+
+- XML 파일에 이벤트 처리 메소드를 등록하는 방법
+- 이벤트를 처리하는 객체를 생성하여 이벤트를 처리하는 방법
+- 뷰 클래스의 이벤트 처리 메소드를 재정의하는 방법
+
+### **# 이벤트 처리 객체를 이용하여 이벤트 처리하기**
+
+이벤트를 처리하는 메소드들이 정의된 인터페이스를 이벤트 리스너(event listener)라고 한다.
+이벤트 리스너를 구현하는 클래스를 정의하고 이 클래스의 객체를 생성하여 위젯에 등록한다.
+
+```
+class MyClass
+{
+	// 리스너 인터페이스를 구현한 클래스 정의
+	class Listener implements View.OnClickListener {
+		public void onClick(View v) {
+			...
+		}
+	}
+	...
+	Listener lis = new Listener();	// 이벤트 리스너 객체 생성
+	button.setOnClickListener(lis);	// 버튼에 이벤트 리스너 객체를 등록
+	...
+}
+```
+
+### **# 리스너 객체를 생성하는 방법**
+
+- 리스너 클래스를 내부 클래스로 정의한다.
+- 리스너 클래스를 무명 클래스로 정의한다.
+- 리스너 인터페이스를 액티비티 클래스에 구현한다.
+- 람다식을 이용한다.
+
+### **# 내부 클래스로 처리하는 방법**
+
+```
+public class MainActivity extends AppCompatActivity {
+
+	class MyListenerClass implements View.OnClickListener {
+		public void onClick(View v) {
+			Toast.makeText(getApplicationContext(), "버튼이 눌려졌습니다", Toast.LENGTH_SHORT).show();
+		}
+	};
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		Button button = (Button) findViewById(R.id.button);
+
+		MyListenerClass buttonListener = new MyListenerClass();
+		button.setOnClickListener(buttonListener);
+	}
+}
+```
+
+### **# 무명 클래스로 처리하는 방법**
+
+```
+Button button = (Button) findViewById(R.id.button);
+
+button.setOnClickListener(new View.OnClickListener() {
+	public void onClick(View v) {
+		Toast.makeText(getApplicationContext(), "버튼이 눌려졌습니다", Toast.LENGTH_SHORT).show();
+	}
+});
+```
+
+- 람다식
+
+```
+button.setOnClickListener((v) -> {
+	Toast.makeText(getApplicationContext(), "버튼이 눌려졌습니다", Toast.LENGTH_SHORT).show();
+});
+```
+
+### **# 액티비티에 인터페이스를 구현하는 방법**
+
+```
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		Button button = (Button) findViewById(R.id.button);
+		button.setOnClickListener(this);
+	}
+
+	public void onClick(View v) {
+		Toast.makeText(getApplicationContext(), "버튼이 눌려졌습니다", Toast.LENGTH_SHORT).show();
+	}
+}
+```
 
 ## **5. 메뉴와 대화상자**
 
