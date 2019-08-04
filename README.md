@@ -3536,11 +3536,13 @@ public class MainActivity extends AppCompatActivity {
 		edit = (EditText) findViewById(R.id.path);
 	}
 
+	// 리소스 미디어 재생
 	public void startResAudio(View v) {
 		mp = MediaPlayer.create(this, R.raw.old_pop);
 		mp.start();
 	}
 
+	// 리소스 미디어 정지
 	public void stopResAudio(View v) {
 		if (mp != null) {
 			mp.stop();
@@ -3549,6 +3551,7 @@ public class MainActivity extends AppCompatActivity {
 		mp = null;
 	}
 
+	// 파일 미디어 시작
 	public void startFileAudio (View v) {
 		String file;
 		file = edit.getText().toString();
@@ -3562,6 +3565,7 @@ public class MainActivity extends AppCompatActivity {
 		mp.start();
 	}
 
+	// 파일 미디어 정지
 	public void stopFileAudio (View v) {
 		if (mp != null) {
 			mp.stop();
