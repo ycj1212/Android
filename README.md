@@ -3467,4 +3467,254 @@ MediaPlayer 클래스를 사용하면 SD카드나 인터넷에 있는 비디오�
 
 #### 인텐트를 사용하여서 오디오 재생하기
 
+```
+activity_main.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical" >
+
+	<Button
+		android:id="@+id/play"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="오디오 재생" >
+	</Button>
+
+</LinearLayout>
+```
+
+```
+MainActivity.java
+
+public class MainActivity extends AppCompatActivity {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		Button playButton = (Button) findViewById(R.id.play);
+		playButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				// ACTION_VIEW 인텐트 객체 생성
+				Uri uri = Uri.parse("file:///sdcard/old_pop.mp3");
+				// SD 카드에 있는 old_pop.mp3 파일을 나타내는 Uri 객체 생성
+				intent.setDataAndType(uri, "audio/mp3");
+				// 인텐트의 데이터를 uri로 설정하고 인텐트의 MME 타입을 audio/mp3로 설정한다.
+				startActivity(intent);	// 액티비티를 시작한다.
+			}
+		});
+	}
+}
+```
+
 #### MediaPlayer 클래스를 사용하여서 오디오 재생하기
+
+```
+activity_main.xml
+
+
+```
+
+```
+MainActivity.java
+
+public class MainActivity extends AppCompatActivity {
+	MediaPlayer mp = null;
+	EditText edit;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		edit = (EditText) findViewById(R.id.path);
+	}
+
+	public void startResAudio(View v) {
+		mp = MediaPlayer.create(this, R.raw.old_pop);
+		mp.start();
+	}
+
+	public void stopResAudio(View v) {
+		if (mp != null) {
+			mp.stop();
+			mp.release();
+		}
+		mp = null;
+	}
+
+	public void startFileAudio (View v) {
+		String file;
+		file = edit.getText().toString();
+		mp = new MediaPlayer();
+		try {
+			mp.setDataSource(file);
+			mp.prepare();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		mp.start();
+	}
+
+	public void stopFileAudio (View v) {
+		if (mp != null) {
+			mp.stop();
+			mp.release();
+		}
+		mp = null;
+	}
+}
+```
+
+```
+AndroidManifest.xml
+
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE">
+</uses-permission>
+```
+
+### 3. 오디오 녹음
+
+안드로이드에서는 오디오 녹음도 가능하다.
+오디오의 녹음도 두 가지의 방법이 있다.
+
+- 인텐트를 사용하여서 전용 애플리케이션에 오디오를 녹음해달라고 요청할 수 있다.
+- 애플리케이션에 직접 MediaRecorder 클래스를 사용하여서 오디오를 녹음할 수 있다.
+
+여기서는 MediaRecorder 클래스를 사용하여서 오디오를 녹음하는 예제만 살펴보자.
+
+#### MediaRecorder를 사용하여서 오디오 녹음하기
+
+```
+MediaRecorder recorder = new MediaRecorder();
+// MediaRecorder의 객체를 생성한다.
+
+recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+// 오디오 소스를 설정한다.
+
+recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+// 출력 파일 형식을 설정한다.
+
+recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+// 인코더를 설정한다.
+
+recorder.setOutputFile(PATH_NAME);
+// 데이터가 저장될 파일경로를 생성한다.
+
+recorder.prepare();
+recorder.start();
+...
+recorder.stop();
+recorder.reset();	// setAudioSource() 단계로 돌아가면 객체를 재사용할 수 있다.
+recorder.release();	// 객체가 소멸된다. 재사용은 불가능하다.
+```
+
+오디오 녹음을 하기 위해서는 매니페스트 파일에 다음과 같은 권한을 선언하여야 한다.
+
+```
+<uses-permission
+	android:name="android.permission.RECORD_AUDIO"></uses-permission>
+<uses-permission
+	android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+```
+
+```
+activity_main.xml
+
+```
+
+```
+MainActivity.java
+
+public class MainActivity extends AppCompatActivity {
+	private static final String LOG_TAG = "AudioRecorderTest";
+	private static String filename = null;
+
+	Button play, record;
+	private MediaRecorder recorder = null;
+	private MediaPlayer player = null;
+
+	@Override
+	public void onCreate(Bundle icicle) {
+		super.onCreate(icicle);
+		setContentView(R.layout.activity_main);
+		filename = Environment.getExternalStorageDirectory().getAbsolutePath();
+		filename += "/test.3gp";
+		play = (Button) findViewById(R.id.play);
+		record = (Button) findViewById(R.id.record);
+
+		play.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				if (player == null) {
+					player = new MediaPlayer();
+					try {
+						player.setDataSource(filename);
+						player.prepare();
+						player.start();
+					} catch (IOException e) {
+						Log.e(LOG_TAG, "prepare() failed");
+					}
+					play.setText("재생 중지");
+				} else {
+					player.release();
+					player = null;
+					play.setText("재생 시작");
+				}
+			}
+		});
+
+		record.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				if (recorder == null) {
+					recorder = new MediaRecorder();
+					recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+					recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+					recorder.setOutputFile(filename);
+					recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+					
+					try {
+						recorder.prepare();
+					} catch (IOException e) {
+						Log.e(LOG_TAG, "prepare() failed");
+					}
+
+					recorder.start();
+					record.setText("녹음 시작");
+				}
+			}
+		});
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (recorder != null) {
+			recorder.release();
+			recorder = null;
+		}
+
+		if (player != null) {
+			player.release();
+			player = null;
+		}
+	}
+}
+```
+
+```
+AndroidManifest.xml
+
+<uses-permission
+	android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+<uses-permission
+	android:name="android.permission.RECORD_AUDIO"></uses-permission>
+```
+
+이들 권한은 위험 권한이므로 build.gradle(Module:app) 파일을 열어서 targetSDKVersion을 22로 낮추도록 하자.
+
