@@ -3722,3 +3722,85 @@ AndroidManifest.xml
 
 이들 권한은 위험 권한이므로 build.gradle(Module:app) 파일을 열어서 targetSDKVersion을 22로 낮추도록 하자.
 
+## **16. 센서**
+
+### 1. 센서 하드웨어
+
+요즘의 스마트폰에는 자이로, 근접, 가속도, 조도, 나침반 등의 여러가지 센서들이 내장되어 있다.
+가속도 센서는 물체의 가속도를 측정하고 근접 센서는 거리를 감지한다.
+조도 센서는 주위의 밝기를 감지한다.
+이들 센서들을 잘 활용하면 훨씬 생동감 있는 게임이나 사용자 인터페이스를 작성할 수 있다.
+
+#### 센서 관리자
+
+SensorManager 클래스는 장치에 내장되어 있는 센서의 리스트를 제공한다.
+역시 시스템 서비스의 일종이므로 객체를 생성하면 안되고 getSystemService(SENSOR_SERVICE)를 호출하여 객체의 참조값을 얻어야 한다.
+센서는 전력을 상당히 많이 소모하므로 필요 없을 때는 반드시 중지시켜야 한다.
+
+`sensor_manager = (SensorManager)getSystemService(SENSOR_SERVICE);`
+
+SensorManager 클래스는 센서에 대한 정보를 제공하는 클래스로, 가장 많이 사용되는 메소드는 getDefaultSensor() 이다.
+
+- Sensor getDefaultSensor(int type)
+
+주어진 타입에 대한 디폴트 센서를 얻을 수 있다.
+반환되는 센서는 복합 센서일 수 있다.
+즉 데이터 값이 평균처리되거나 필터링될 수 있다.
+만약 원천 센서에 접근하려면 getSensorList()를 사용하여야 한다.
+
+매개변수 type에는 조사하고 싶은 센서의 종류를 넣으면 된다.
+예를 들어서 가속도 센서에 대한 정보를 얻으려면 다음과 같은 문장을 사용한다.
+
+`accelerometer = sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);`
+
+반환된 센서에서 정보를 얻으려면 다음과 같은 Sensor 클래스의 메소드를 사용한다.
+SensorManager의 getSensorList(int Type)를 호출하면 지정된 타입의 센서들의 목록을 얻을 수 있다.
+
+- List<Sensor> getSensorList(int Type)
+
+지정된 타입의 센서들의 목록이 반환된다.
+만약 전체 센서의 목록을 구하고 싶으면 인수로 TYPE_ALL을 전달하면 된다.
+
+- boolean registerListener(SensorEventListener listener, Sensor sensor, int rate)
+
+지정된 센서에 대하여 리스너를 등록한다.
+rate는 어떤 간격으로 센서로부터 값을 받을 것인지를 지정한다.
+rate는 단지 시스템에 힌트로 사용된다.
+실제 값을 전달하는 속도는 다를 수 있다.
+rate에 허용되는 상수는 SENSOR_DELAY_NORMAL, SENSOR_DELAY_UI, SENSOR_DELAY_GAME, SENSOR_DELAY_FASTEST 또는 마이크로 초단위로 직접 시간을 지정할 수도 있다.
+
+리스너를 해제할 때는 다음과 같은 메소드를 사용한다.
+
+- void unregisterListener(SensorEventListener listener, Sensor sensor)
+지정된 센서에 대한 리스너를 해제한다.
+
+- public void unregisterListener(SensorEventListener listener)
+모든 센서에 대한 리스너를 해제한다.
+
+센서 리스너의 일반적인 구조는 다음과 같다.
+여기서는 무명 클래스를 이용하여서 이벤트를 처리한다고 가정한다.
+
+```
+SensorEventListener listener = new SensorEventListener() {
+	// 센서 값에 변화가 있는 경우에 호출
+	public void onSensorChanged(SensorEvent event) {
+		// 여기서 센서 값을 읽는다.
+	}
+
+	// 센서 값의 정확도에 변화가 있는 경우에 호출
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		...
+	}
+}
+```
+
+onAccuracyChanged() 메소드에서 accuracy는 다음과 같은 값들을 가질 수 있다.
+
+```
+SENSOR_STATUS_ACCURACY_HIGH	: 가장 높은 정확도
+SENSOR_STATUS_ACCURACY_LOW	: 가장 낮은 정확도
+SENSOR_STATUS_ACCURACY_MEDIUM	: 평균 정확도
+SENSOR_STATUS_UNRELIABLE	: 신뢰할 수 없는 정확도
+```
+
+### 2. 방향 센서
