@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:background="#FFAAFFAA">
+
+    <ImageButton
+        android:id="@+id/color1"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:background="#FFFFFFFF"/>
+
+    <ImageButton
+        android:id="@+id/color2"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:background="#FFFF0000"/>
+
+    <ImageButton
+        android:id="@+id/color3"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:background="#FFFFAA00"/>
+
+    <ImageButton
+        android:id="@+id/color4"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:background="#FFFFFF00"/>
+
+    <ImageButton
+        android:id="@+id/color5"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:background="#FF00FF00"/>
+
+    <ImageButton
+        android:id="@+id/color6"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:background="#FF0000FF"/>
+
+    <ImageButton
+        android:id="@+id/color7"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:background="#FF000000"/>
+
+</LinearLayout>
