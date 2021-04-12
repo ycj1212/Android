@@ -3,8 +3,13 @@ package com.example.paint;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,11 +21,15 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     SingleTouchView singleTouchView;
     ImageView newPage, pen, eraser, save;
     ImageButton backgroundColor, paintColor, minusButton, plusButton;
-    ImageButton color1, color2, color3, color4, color5, color6, color7;
+    ImageButton currentPenColor;
     SeekBar penWidth;
 
     AlertDialog dialog;
@@ -43,15 +52,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         eraser = findViewById(R.id.eraser);
         save = findViewById(R.id.save);
 
-        newPage.setOnClickListener(this);
-        pen.setOnClickListener(this);
-        eraser.setOnClickListener(this);
-        save.setOnClickListener(this);
-
         backgroundColor = findViewById(R.id.background_color);
         paintColor = findViewById(R.id.paint_color);
         minusButton = findViewById(R.id.minus_button);
         plusButton = findViewById(R.id.plus_button);
+
+        newPage.setOnClickListener(this);
+        pen.setOnClickListener(this);
+        eraser.setOnClickListener(this);
+        save.setOnClickListener(this);
 
         backgroundColor.setOnClickListener(this);
         paintColor.setOnClickListener(this);
@@ -61,12 +70,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         penWidth = findViewById(R.id.seekbar_width);
         penWidth.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) { }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -79,21 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater = getLayoutInflater();
         View colorMenu = inflater.inflate(R.layout.dialog_color, null);
 
-        color1 = colorMenu.findViewById(R.id.color1);
-        color2 = colorMenu.findViewById(R.id.color2);
-        color3 = colorMenu.findViewById(R.id.color3);
-        color4 = colorMenu.findViewById(R.id.color4);
-        color5 = colorMenu.findViewById(R.id.color5);
-        color6 = colorMenu.findViewById(R.id.color6);
-        color7 = colorMenu.findViewById(R.id.color7);
-
-        color1.setOnClickListener(this);
-        color2.setOnClickListener(this);
-        color3.setOnClickListener(this);
-        color4.setOnClickListener(this);
-        color5.setOnClickListener(this);
-        color6.setOnClickListener(this);
-        color7.setOnClickListener(this);
+        currentPenColor = colorMenu.findViewById(R.id.color1);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(colorMenu);
@@ -137,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.save:
                 Toast.makeText(this, "save", Toast.LENGTH_SHORT).show();
+                save(singleTouchView.getBitmap());
                 break;
             case R.id.minus_button:
                 penWidth.setProgress(penWidth.getProgress() - 1);
@@ -156,36 +150,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.show();
                 mode = 1;
                 break;
-            case R.id.color1:
-                color = 0xFFFFFFFF;
-                dialog.dismiss();
-                break;
-            case R.id.color2:
-                color = 0xFFFF0000;
-                dialog.dismiss();
-                break;
-            case R.id.color3:
-                color = 0xFFFFAA00;
-                dialog.dismiss();
-                break;
-            case R.id.color4:
-                color = 0xFFFFFF00;
-                dialog.dismiss();
-                break;
-            case R.id.color5:
-                color = 0xFF00FF00;
-                dialog.dismiss();
-                break;
-            case R.id.color6:
-                color = 0xFF0000FF;
-                dialog.dismiss();
-                break;
-            case R.id.color7:
-                color = 0xFF000000;
-                dialog.dismiss();
-                break;
             default:
                 break;
+        }
+    }
+
+    public void selectPenColor(View view) {
+        currentPenColor = (ImageButton) view;
+        color = ((ColorDrawable) currentPenColor.getBackground()).getColor();
+        dialog.dismiss();
+    }
+
+    public void save(Bitmap bitmap) {
+        File storage = getCacheDir();
+        File[] list = new File(storage.getAbsolutePath()).listFiles();
+
+        String fileName = "test.png";
+
+        for (int i=0; i<list.length; i++) {
+            System.out.println(list[i].getName());
+        }
+
+        try {
+            File tempFile = new File(storage, fileName);
+            tempFile.createNewFile();
+
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

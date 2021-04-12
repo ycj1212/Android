@@ -12,48 +12,55 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="#FFFFFFFF"/>
+        android:background="#FFFFFFFF"
+        android:onClick="selectPenColor"/>
 
     <ImageButton
         android:id="@+id/color2"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="#FFFF0000"/>
+        android:background="#FFFF0000"
+        android:onClick="selectPenColor"/>
 
     <ImageButton
         android:id="@+id/color3"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="#FFFFAA00"/>
+        android:background="#FFFFAA00"
+        android:onClick="selectPenColor"/>
 
     <ImageButton
         android:id="@+id/color4"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="#FFFFFF00"/>
+        android:background="#FFFFFF00"
+        android:onClick="selectPenColor"/>
 
     <ImageButton
         android:id="@+id/color5"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="#FF00FF00"/>
+        android:background="#FF00FF00"
+        android:onClick="selectPenColor"/>
 
     <ImageButton
         android:id="@+id/color6"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="#FF0000FF"/>
+        android:background="#FF0000FF"
+        android:onClick="selectPenColor"/>
 
     <ImageButton
         android:id="@+id/color7"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="#FF000000"/>
+        android:background="#FF000000"
+        android:onClick="selectPenColor"/>
 
 </LinearLayout>

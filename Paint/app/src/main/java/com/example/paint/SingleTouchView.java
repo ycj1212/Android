@@ -1,6 +1,7 @@
 package com.example.paint;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -37,6 +38,9 @@ public class SingleTouchView extends View {
     }
 
     private ArrayList<PathInfo> pathInfo;
+    private Bitmap canvasBitmap;
+    private Canvas drawCanvas;
+    private Paint canvasPaint;
     private float width;
     private int backgroundColor, paintColor;
     private int mode;   // 0: pen, 1: eraser
@@ -71,6 +75,10 @@ public class SingleTouchView extends View {
         paintColor = color;
     }
 
+    public Bitmap getBitmap() {
+        return canvasBitmap;
+    }
+
     public void erase() {
         pathInfo.clear();
 
@@ -79,7 +87,10 @@ public class SingleTouchView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        //canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
+        drawCanvas.drawColor(backgroundColor);
         for (PathInfo p : pathInfo) {
+            drawCanvas.drawPath(p.getPath(), p.getPaint());
             canvas.drawPath(p.getPath(), p.getPaint());
         }
     }
@@ -113,5 +124,13 @@ public class SingleTouchView extends View {
         invalidate();
 
         return true;
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        drawCanvas = new Canvas(canvasBitmap);
+        canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 }
