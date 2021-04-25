@@ -3,6 +3,7 @@ package com.example.paint;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
@@ -21,6 +22,9 @@ public class MenuActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
+
+    private Button startButton, loadButton, exitButton;
+    private Uri backgroundImageUri = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,12 +45,15 @@ public class MenuActivity extends AppCompatActivity {
             requestPermissions(permissionList.toArray(new String[permissionList.size()]), REQUEST_PERMISSION_CODE);
         }
 
-        Button startButton = findViewById(R.id.start_button);
-        Button loadButton = findViewById(R.id.load_button);
-        Button exitButton = findViewById(R.id.exit_button);
+        startButton = findViewById(R.id.start_button);
+        loadButton = findViewById(R.id.load_button);
+        exitButton = findViewById(R.id.exit_button);
 
         startButton.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            if (backgroundImageUri != null) {
+                intent.putExtra("backgroundImageUri", backgroundImageUri);
+            }
             startActivity(intent);
         });
 
@@ -74,6 +81,14 @@ public class MenuActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            try {
+                backgroundImageUri = data.getData();
+                startButton.performClick();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
