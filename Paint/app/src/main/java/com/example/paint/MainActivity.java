@@ -3,11 +3,12 @@ package com.example.paint;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Display;
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.save:
                 Toast.makeText(this, "save", Toast.LENGTH_SHORT).show();
-                save(singleTouchView.getBitmap());
+                save(getApplicationContext(), singleTouchView.getBitmap());
                 break;
             case R.id.minus_button:
                 penWidth.setProgress(penWidth.getProgress() - 1);
@@ -161,26 +162,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.dismiss();
     }
 
-    public void save(Bitmap bitmap) {
-        File storage = getCacheDir();
-        File[] list = new File(storage.getAbsolutePath()).listFiles();
+    public void save(Context context, Bitmap bitmap) {
+        String fileName = System.currentTimeMillis() + ".jpg";
+        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
-        String fileName = "test.png";
+        System.out.println(dir.getPath());
 
-        for (int i=0; i<list.length; i++) {
-            System.out.println(list[i].getName());
-        }
+        File file = new File(dir, fileName);
 
         try {
-            File tempFile = new File(storage, fileName);
-            tempFile.createNewFile();
-
-            FileOutputStream fos = new FileOutputStream(tempFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        String s = "file://" + dir.getPath() + "/" + fileName;
+        System.out.println(s);
+
+        sendBroadcast(new Intent(
+                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                Uri.parse("file://" + dir.getPath() + "/" + fileName)
+        ));
     }
 }
