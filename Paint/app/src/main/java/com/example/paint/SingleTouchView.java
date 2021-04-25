@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -45,6 +46,10 @@ public class SingleTouchView extends View {
     private int backgroundColor, paintColor;
     private int mode;   // 0: pen, 1: eraser
 
+    private ScaleGestureDetector mScaleGestureDetector;
+    private float mScaleFactor = 1.0f;
+    private boolean isMultiTouch = false;
+
     public SingleTouchView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -52,6 +57,7 @@ public class SingleTouchView extends View {
         width = 10;
         backgroundColor = Color.WHITE;
         paintColor = Color.BLACK;
+        mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
     }
 
     public void setPenMode() {
@@ -81,6 +87,7 @@ public class SingleTouchView extends View {
 
     public void erase() {
         pathInfo.clear();
+        setBackgroundColor(backgroundColor);
 
         invalidate();
     }
@@ -100,6 +107,11 @@ public class SingleTouchView extends View {
         float x = event.getX();
         float y = event.getY();
 
+        if (event.getPointerCount() > 1) {
+            isMultiTouch = true;
+            return mScaleGestureDetector.onTouchEvent(event);
+        }
+
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 int color;
@@ -110,13 +122,17 @@ public class SingleTouchView extends View {
                 }
 
                 pathInfo.add(new PathInfo(width, color));
-                pathInfo.get(pathInfo.size()-1).getPath().moveTo(x, y);
+                pathInfo.get(pathInfo.size() - 1).getPath().moveTo(x, y);
+
                 return true;
             case MotionEvent.ACTION_UP:
+                isMultiTouch = false;
                 break;
             case MotionEvent.ACTION_MOVE:
-                pathInfo.get(pathInfo.size()-1).getPath().lineTo(x, y);
-                break;
+                if (!isMultiTouch) {
+                    pathInfo.get(pathInfo.size() - 1).getPath().lineTo(x, y);
+                    break;
+                }
             default:
                 return false;
         }
@@ -132,5 +148,22 @@ public class SingleTouchView extends View {
         canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
         canvasPaint = new Paint(Paint.DITHER_FLAG);
+    }
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector scaleGestureDetector){
+            // ScaleGestureDetector에서 factor를 받아 변수로 선언한 factor에 넣고
+            mScaleFactor *= scaleGestureDetector.getScaleFactor();
+
+            // 최대 10배, 최소 10배 줌 한계 설정
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
+
+            // 이미지뷰 스케일에 적용
+            setScaleX(mScaleFactor);
+            setScaleY(mScaleFactor);
+
+            return true;
+        }
     }
 }
