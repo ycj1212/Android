@@ -31,19 +31,8 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        ArrayList<String> permissionList = new ArrayList<>();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            for (String permission : permissions) {
-                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                    permissionList.add(permission);
-                } else if (!shouldShowRequestPermissionRationale(permission)) {
-                    permissionList.add(permission);
-                }
-            }
-
-            requestPermissions(permissionList.toArray(new String[permissionList.size()]), REQUEST_PERMISSION_CODE);
-        }
+        // 그림 저장 및 불러오기 시 저장소 접근 권한 필요
+        checkPermission();
 
         startButton = findViewById(R.id.start_button);
         loadButton = findViewById(R.id.load_button);
@@ -75,6 +64,22 @@ public class MenuActivity extends AppCompatActivity {
 
             System.exit(0);
         });
+    }
+
+    public void checkPermission() {
+        ArrayList<String> permissionList = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (String permission : permissions) {
+                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    permissionList.add(permission);
+                } else if (!shouldShowRequestPermissionRationale(permission)) {
+                    permissionList.add(permission);
+                }
+            }
+
+            requestPermissions(permissionList.toArray(new String[permissionList.size()]), REQUEST_PERMISSION_CODE);
+        }
     }
 
     @Override
