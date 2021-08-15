@@ -2,6 +2,11 @@ package kr.co.company.mylunarlander;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     /** A handle to the thread that's actually running the animation. */
@@ -19,8 +24,37 @@ public class MainActivity extends AppCompatActivity {
 
         // get handles to the LunarView from XML, and its LunarThread
         mLunarView = (LunarView) findViewById(R.id.lunar);
+        mLunarView.setTextView((TextView) findViewById(R.id.textview));
         mLunarThread = mLunarView.getThread();
 
+        final Button menuButton = findViewById(R.id.button_menu);
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, view);
+                getMenuInflater().inflate(R.menu.game_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.new_game:
+                                mLunarThread.setRunning(false);
+                                mLunarView = new LunarView(getApplicationContext(), null);
+                                //mLunarThread.initSetting();
+                                break;
+                            case R.id.pause:
+                                mLunarThread.pause();
+                                break;
+                            case R.id.exit:
+
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
+            }
+        });
     }
 
     /**

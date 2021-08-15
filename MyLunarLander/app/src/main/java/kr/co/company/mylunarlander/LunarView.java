@@ -21,18 +21,17 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -65,12 +64,16 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
         private int mCanvasWidth = 1;
 
         /** What to draw for the Lander in its normal state */
-        private Drawable mLanderImage;
+        private Drawable mLanderImage, mLandingZone;
         /** Indicate whether the surface has been created & is ready to draw */
         private boolean mRun = false;
 
         /** Handle to the surface manager object we interact with */
         private SurfaceHolder mSurfaceHolder;
+
+        int x, y=0, tempX=0;
+        int landingZoneX, landingZoneY;
+        boolean drawing = true;
 
         public LunarThread(SurfaceHolder surfaceHolder, Context context,
                 Handler handler) {
@@ -83,6 +86,8 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
             // cache handles to our key sprites & other drawables
             mLanderImage = context.getResources().getDrawable(
                     R.drawable.lander_plain);
+            mLandingZone = context.getResources().getDrawable(
+                    R.drawable.landing_zone);
 
             // load background image as a Bitmap instead of a Drawable b/c
             // we don't need to transform it and it's faster to draw this way
@@ -98,6 +103,19 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
                 mCanvasHeight = height;
                 mBackgroundImage = mBackgroundImage.createScaledBitmap(
                         mBackgroundImage, width, height, true);
+
+                initSetting();
+            }
+        }
+
+        public void initSetting() {
+            synchronized (mSurfaceHolder) {
+                x = (int) (Math.random() * (getWidth() - mLanderImage.getMinimumWidth()));
+                y = 0;
+                landingZoneX = (int) (Math.random() * (getWidth() - mLandingZone.getMinimumWidth()));
+                landingZoneY = getHeight()-200;
+
+                doStart();
             }
         }
 
@@ -106,6 +124,12 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
          */
         public void doStart() {
             synchronized (mSurfaceHolder) {
+                Message msg = mHandler.obtainMessage();
+                Bundle bundle = new Bundle();
+                bundle.putInt("visibility", View.INVISIBLE);
+                msg.setData(bundle);
+                mHandler.sendMessage(msg);
+                drawing = true;
             }
         }
 
@@ -114,6 +138,13 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
          */
         public void pause() {
             synchronized (mSurfaceHolder) {
+                drawing = false;
+
+                Message msg = mHandler.obtainMessage();
+                Bundle bundle = new Bundle();
+                bundle.putInt("visibility", View.VISIBLE);
+                msg.setData(bundle);
+                mHandler.sendMessage(msg);
             }
         }
 
@@ -135,8 +166,10 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
                 Canvas c = null;
                 try {
                     c = mSurfaceHolder.lockCanvas(null);
-                    synchronized (mSurfaceHolder) {
-                        doDraw(c);
+                    if (drawing) {
+                        synchronized (mSurfaceHolder) {
+                            doDraw(c);
+                        }
                     }
                 } finally {
                     // do this in a finally so that if an exception is thrown
@@ -179,10 +212,14 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
         public void unpause() {
             // Move the real time clock up to now
             synchronized (mSurfaceHolder) {
+                Message msg = mHandler.obtainMessage();
+                Bundle bundle = new Bundle();
+                bundle.putInt("visibility", View.INVISIBLE);
+                msg.setData(bundle);
+                mHandler.sendMessage(msg);
+                drawing = true;
             }
         }
-        int x=0;
-		int y=0;
 
         /**
          * Draws the ship, fuel/speed bars, and background to the provided
@@ -190,16 +227,62 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
          */
         private void doDraw(Canvas canvas) {
             canvas.drawBitmap(mBackgroundImage, 0, 0, null);
-            mLanderImage.setBounds(x++, y++, x + 100, y + 100);
-            if( x > mCanvasWidth ) x = 0;
-            if( y > mCanvasHeight ) y = 0;
-            mLanderImage.draw(canvas);
+            drawLanderImage(canvas);
+            drawLandingZone(canvas);
+            if (x > mCanvasWidth) x = 0;
+            if (y > landingZoneY - 80) {
+                mLanderImage = mContext.getResources().getDrawable(R.drawable.app_lunar_lander);
+                if (landingZoneX < x && x < landingZoneX+mLandingZone.getMinimumWidth()) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mContext, "Success", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    mLanderImage = mContext.getResources().getDrawable(R.drawable.lander_crashed);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mContext, "Failed", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                mLanderImage.draw(canvas);
+                mLanderImage.invalidateSelf();
+                setRunning(false);
+            }
+        }
 
+        private void drawLanderImage(Canvas canvas) {
+            if (isTouch) {
+                mLanderImage = mContext.getResources().getDrawable(R.drawable.lander_firing);
+                if (direction == 0) {
+                    tempX = -1;
+                } else {
+                    tempX = 1;
+                }
+            } else {
+                mLanderImage = mContext.getResources().getDrawable(R.drawable.lander_plain);
+                tempX = 0;
+            }
+            x += tempX;
+            mLanderImage.setBounds(x, y+=10, x + 100, y + 100);
+            mLanderImage.draw(canvas);
+        }
+
+        private void drawLandingZone(Canvas canvas) {
+            mLandingZone.setBounds(landingZoneX, landingZoneY,
+                    landingZoneX+mLandingZone.getMinimumWidth(),
+                    landingZoneY+mLandingZone.getMinimumHeight());
+            mLandingZone.draw(canvas);
         }
     }
 
     /** Handle to the application context, used to e.g. fetch Drawables. */
     private Context mContext;
+
+    private TextView textview;
 
     /** The thread that actually draws the animation */
     private LunarThread thread;
@@ -215,6 +298,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
         thread = new LunarThread(holder, context, new Handler() {
             @Override
             public void handleMessage(Message m) {
+                textview.setVisibility(m.getData().getInt("visibility"));
             }
         });
 
@@ -230,6 +314,9 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
         return thread;
     }
 
+    public void setTextView(TextView textview) {
+        this.textview = textview;
+    }
 
     /* Callback invoked when the surface dimensions change. */
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
@@ -265,5 +352,33 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback {
             } catch (InterruptedException e) {
             }
         }
+    }
+
+    boolean isTouch = false;
+    int direction = 0;  // 0: left, 1: right
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                isTouch = true;
+                if (!thread.drawing) {
+                    thread.unpause();
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (event.getX() < getWidth()/2.0) {
+                    direction = 0;
+                } else {
+                    direction = 1;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                isTouch = false;
+                break;
+        }
+
+        return true;
     }
 }
