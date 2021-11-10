@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     private lateinit var recognizer: SpeechRecognizer
+    private lateinit var recognizerIntent: Intent
 
     private var state = NORMAL
 
@@ -54,6 +55,11 @@ class MainActivity : AppCompatActivity() {
         override fun onResults(p0: Bundle?) {
             // 인식 결과가 준비되면 호출
             // 말을 하면 ArrayList에 단어를 넣고 textView에 단어 이어준다.
+
+            p0?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.forEach {
+                binding.tvSttResult.append(it)
+            }
+            recognizer.startListening(recognizerIntent)
         }
 
         override fun onPartialResults(p0: Bundle?) {
@@ -63,7 +69,6 @@ class MainActivity : AppCompatActivity() {
         override fun onEvent(p0: Int, p1: Bundle?) {
             // 향후 이벤트를 추가히기 위해 예약
         }
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 
         checkPermission()
 
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, packageName)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
         }
@@ -87,7 +92,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 RECORDING -> {
                     state = STOPPED
-                    TODO("음성 인식 마침")
+                    recognizer.stopListening()
+                    recognizer.destroy()
+                    recognizer.cancel()
                     state = NORMAL
                 }
                 STOPPED -> {
