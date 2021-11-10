@@ -13,12 +13,12 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.sttproject.databinding.ActivityMainBinding
 
 const val STT_PERMISSION_REQUEST_CODE = 101
 
 class MainActivity : AppCompatActivity() {
-    private val sttResult by lazy { findViewById<TextView>(R.id.tv_stt_result) }
-    private val sttButton by lazy { findViewById<Button>(R.id.btn_stt) }
+    private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     private lateinit var recognizer: SpeechRecognizer
 
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
 
         checkPermission()
 
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
         }
 
-        sttButton.setOnClickListener {
+        binding.btnStt.setOnClickListener {
             when (state) {
                 NORMAL -> {
                     state = RECORDING
