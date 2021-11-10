@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var recognizer: SpeechRecognizer
 
+    private var state = NORMAL
+
     private val listener = object : RecognitionListener {
         override fun onReadyForSpeech(p0: Bundle?) {
             // 말하기 시작할 준비가 되면 호출
@@ -76,9 +78,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         sttButton.setOnClickListener {
-            recognizer = SpeechRecognizer.createSpeechRecognizer(this)
-            recognizer.setRecognitionListener(listener)
-            recognizer.startListening(intent)
+            when (state) {
+                NORMAL -> {
+                    state = RECORDING
+                    recognizer = SpeechRecognizer.createSpeechRecognizer(this)
+                    recognizer.setRecognitionListener(listener)
+                    recognizer.startListening(intent)
+                }
+                RECORDING -> {
+                    state = STOPPED
+                    TODO("음성 인식 마침")
+                    state = NORMAL
+                }
+                STOPPED -> {
+                    state = NORMAL
+                }
+            }
         }
     }
 
@@ -108,5 +123,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    companion object State {
+        private val NORMAL = 0
+        private val RECORDING = 1
+        private val STOPPED = 2
     }
 }
